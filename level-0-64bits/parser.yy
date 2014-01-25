@@ -135,6 +135,7 @@ assignment_statement_list:
 ;
 
 assignment_statement:
+<<<<<<< HEAD
 	variable '=' constant
 |
 	variable '=' variable
@@ -143,6 +144,9 @@ assignment_statement:
 |
 	variable '=' conditional_expression
 
+=======
+	variable '=' expression
+>>>>>>> dcd8e34d21873b1715f970ad51b882a4288fe471
 ;
 
 variable:
