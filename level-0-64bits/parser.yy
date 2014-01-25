@@ -64,11 +64,19 @@ program:
 	procedure_body
 ;
 
-bool_operand:
+expression:
+	variable
+|
 	constant
 |
-	variable
+	bool_expression
+|
+	conditional_expression
 ;
+
+conditional_expression:
+	bool_expression '?' expression ':' expression
+;	
 
 bool_operator:
 	'<'
@@ -80,8 +88,8 @@ bool_operator:
 	'<''='
 ;
 
-bool_condition:
-	bool_operand bool_operator bool_operand
+bool_expression:
+	expression bool_operator expression
 ;
 
 procedure_name:
@@ -128,11 +136,7 @@ assignment_statement_list:
 ;
 
 assignment_statement:
-	variable '=' variable ';'
-|
-	variable '=' constant ';'
-|
-	variable '=' bool_condition ';'
+	variable '=' expression
 ;
 
 variable:
