@@ -43,7 +43,7 @@
 %token <string_value> NAME
 %token RETURN INTEGER 
 
-%type <symbol_table> declaration_statement_list
+/*%type <symbol_table> declaration_statement_list
 %type <symbol_entry> declaration_statement
 %type <basic_block_list> basic_block_list
 %type <basic_block> basic_block
@@ -51,7 +51,7 @@
 %type <ast_list> assignment_statement_list
 %type <ast> assignment_statement
 %type <ast> variable
-%type <ast> constant
+%type <ast> constant*/
 %start program
 
 %%
@@ -62,6 +62,26 @@ program:
 |
 	procedure_name
 	procedure_body
+;
+
+bool_operand:
+	constant
+|
+	variable
+;
+
+bool_operator:
+	'<'
+|	
+	'>'
+|
+	'>''='
+|
+	'<''='
+;
+
+bool_condition:
+	bool_operand bool_operator bool_operand
 ;
 
 procedure_name:
@@ -111,6 +131,8 @@ assignment_statement:
 	variable '=' variable ';'
 |
 	variable '=' constant ';'
+|
+	variable '=' bool_condition ';'
 ;
 
 variable:

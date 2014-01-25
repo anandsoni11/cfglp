@@ -1,6 +1,8 @@
-int a;
 main()
 {
+	int a;
 	int b;
-	b = a;
+	if(a<=2) {
+		b=a;
+	}
 }

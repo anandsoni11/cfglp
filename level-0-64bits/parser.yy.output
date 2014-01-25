@@ -1,0 +1,371 @@
+
+Production Rules
+(rule precedences determined from %prec or 1st terminal between parentheses):
+1: program ->  declaration_statement_list procedure_name procedure_body
+2: program ->  procedure_name procedure_body
+3: bool_operand ->  constant
+4: bool_operand ->  variable
+5: bool_operator ('<') ->  '<'
+6: bool_operator ('>') ->  '>'
+7: bool_operator ('>') ->  '>' '='
+8: bool_operator ('<') ->  '<' '='
+9: bool_condition ->  bool_operand bool_operator bool_operand
+10: procedure_name (NAME) ->  NAME '(' ')'
+11: procedure_body ('{') ->  '{' declaration_statement_list basic_block_list '}'
+12: procedure_body ('{') ->  '{' basic_block_list '}'
+13: declaration_statement_list ->  declaration_statement
+14: declaration_statement_list ->  declaration_statement_list declaration_statement
+15: declaration_statement (INTEGER) ->  INTEGER NAME ';'
+16: basic_block_list ->  basic_block_list basic_block
+17: basic_block_list ->  basic_block
+18: basic_block ('<') ->  '<' NAME INTEGER_NUMBER '>' ':' executable_statement_list
+19: executable_statement_list ->  assignment_statement_list
+20: executable_statement_list (RETURN) ->  assignment_statement_list RETURN ';'
+21: assignment_statement_list ->  <empty>
+22: assignment_statement_list ->  assignment_statement_list assignment_statement
+23: assignment_statement ('=') ->  variable '=' variable ';'
+24: assignment_statement ('=') ->  variable '=' constant ';'
+25: assignment_statement ('=') ->  variable '=' bool_condition ';'
+26: variable (NAME) ->  NAME
+27: constant (INTEGER_NUMBER) ->  INTEGER_NUMBER
+28: program_$ ->  program
+
+
+Symbolic Terminal tokens:
+       error
+       EOF
+   257: INTEGER_NUMBER
+   258: NAME
+   259: RETURN
+   260: INTEGER
+    60: '<'
+    62: '>'
+    61: '='
+    40: '('
+    41: ')'
+   123: '{'
+   125: '}'
+    59: ';'
+    58: ':'
+
+
+Grammar States: 
+State 0:
+28: program_$ ->  . program 
+  0:   On program to state 1
+  1:   On declaration_statement_list to state 2
+  2:   On procedure_name to state 3
+  3:   On declaration_statement to state 4
+  4:   On NAME to state 5
+  5:   On INTEGER to state 6
+
+
+State 1:
+28: program_$ -> program  . 
+
+
+State 2:
+1: program -> declaration_statement_list  . procedure_name procedure_body 
+14: declaration_statement_list -> declaration_statement_list  . declaration_statement 
+  0:   On procedure_name to state 7
+  1:   On declaration_statement to state 8
+  2:   On NAME to state 5
+  3:   On INTEGER to state 6
+
+
+State 3:
+2: program -> procedure_name  . procedure_body 
+  0:   On procedure_body to state 9
+  1:   On '{' to state 10
+
+
+State 4:
+13: declaration_statement_list -> declaration_statement  . 
+  Reduce by 13: declaration_statement_list -> declaration_statement  . 
+
+
+State 5:
+10: procedure_name -> NAME  . '(' ')' 
+  0:   On '(' to state 11
+
+
+State 6:
+15: declaration_statement -> INTEGER  . NAME ';' 
+  0:   On NAME to state 12
+
+
+State 7:
+1: program -> declaration_statement_list procedure_name  . procedure_body 
+  0:   On procedure_body to state 13
+  1:   On '{' to state 10
+
+
+State 8:
+14: declaration_statement_list -> declaration_statement_list declaration_statement  . 
+  Reduce by 14: declaration_statement_list -> declaration_statement_list declaration_statement  . 
+
+
+State 9:
+2: program -> procedure_name procedure_body  . 
+  Reduce by 2: program -> procedure_name procedure_body  . 
+
+
+State 10:
+11: procedure_body -> '{'  . declaration_statement_list basic_block_list '}' 
+12: procedure_body -> '{'  . basic_block_list '}' 
+  0:   On declaration_statement_list to state 14
+  1:   On basic_block_list to state 15
+  2:   On declaration_statement to state 4
+  3:   On basic_block to state 16
+  4:   On INTEGER to state 6
+  5:   On '<' to state 17
+
+
+State 11:
+10: procedure_name -> NAME '('  . ')' 
+  0:   On ')' to state 18
+
+
+State 12:
+15: declaration_statement -> INTEGER NAME  . ';' 
+  0:   On ';' to state 19
+
+
+State 13:
+1: program -> declaration_statement_list procedure_name procedure_body  . 
+  Reduce by 1: program -> declaration_statement_list procedure_name procedure_body  . 
+
+
+State 14:
+11: procedure_body -> '{' declaration_statement_list  . basic_block_list '}' 
+14: declaration_statement_list -> declaration_statement_list  . declaration_statement 
+  0:   On basic_block_list to state 20
+  1:   On declaration_statement to state 8
+  2:   On basic_block to state 16
+  3:   On INTEGER to state 6
+  4:   On '<' to state 17
+
+
+State 15:
+12: procedure_body -> '{' basic_block_list  . '}' 
+16: basic_block_list -> basic_block_list  . basic_block 
+  0:   On '}' to state 21
+  1:   On basic_block to state 22
+  2:   On '<' to state 17
+
+
+State 16:
+17: basic_block_list -> basic_block  . 
+  Reduce by 17: basic_block_list -> basic_block  . 
+
+
+State 17:
+18: basic_block -> '<'  . NAME INTEGER_NUMBER '>' ':' executable_statement_list 
+  0:   On NAME to state 23
+
+
+State 18:
+10: procedure_name -> NAME '(' ')'  . 
+  Reduce by 10: procedure_name -> NAME '(' ')'  . 
+
+
+State 19:
+15: declaration_statement -> INTEGER NAME ';'  . 
+  Reduce by 15: declaration_statement -> INTEGER NAME ';'  . 
+
+
+State 20:
+11: procedure_body -> '{' declaration_statement_list basic_block_list  . '}' 
+16: basic_block_list -> basic_block_list  . basic_block 
+  0:   On '}' to state 24
+  1:   On basic_block to state 22
+  2:   On '<' to state 17
+
+
+State 21:
+12: procedure_body -> '{' basic_block_list '}'  . 
+  Reduce by 12: procedure_body -> '{' basic_block_list '}'  . 
+
+
+State 22:
+16: basic_block_list -> basic_block_list basic_block  . 
+  Reduce by 16: basic_block_list -> basic_block_list basic_block  . 
+
+
+State 23:
+18: basic_block -> '<' NAME  . INTEGER_NUMBER '>' ':' executable_statement_list 
+  0:   On INTEGER_NUMBER to state 25
+
+
+State 24:
+11: procedure_body -> '{' declaration_statement_list basic_block_list '}'  . 
+  Reduce by 11: procedure_body -> '{' declaration_statement_list basic_block_list '}'  . 
+
+
+State 25:
+18: basic_block -> '<' NAME INTEGER_NUMBER  . '>' ':' executable_statement_list 
+  0:   On '>' to state 26
+
+
+State 26:
+18: basic_block -> '<' NAME INTEGER_NUMBER '>'  . ':' executable_statement_list 
+  0:   On ':' to state 27
+
+
+State 27:
+18: basic_block -> '<' NAME INTEGER_NUMBER '>' ':'  . executable_statement_list 
+  0:   On executable_statement_list to state 28
+  1:   On assignment_statement_list to state 29
+  Reduce by 21: assignment_statement_list ->  . 
+
+
+State 28:
+18: basic_block -> '<' NAME INTEGER_NUMBER '>' ':' executable_statement_list  . 
+  Reduce by 18: basic_block -> '<' NAME INTEGER_NUMBER '>' ':' executable_statement_list  . 
+
+
+State 29:
+19: executable_statement_list -> assignment_statement_list  . 
+20: executable_statement_list -> assignment_statement_list  . RETURN ';' 
+22: assignment_statement_list -> assignment_statement_list  . assignment_statement 
+  0:   On RETURN to state 30
+  1:   On assignment_statement to state 31
+  2:   On variable to state 32
+  3:   On NAME to state 33
+  Reduce by 19: executable_statement_list -> assignment_statement_list  . 
+
+
+State 30:
+20: executable_statement_list -> assignment_statement_list RETURN  . ';' 
+  0:   On ';' to state 34
+
+
+State 31:
+22: assignment_statement_list -> assignment_statement_list assignment_statement  . 
+  Reduce by 22: assignment_statement_list -> assignment_statement_list assignment_statement  . 
+
+
+State 32:
+23: assignment_statement -> variable  . '=' variable ';' 
+24: assignment_statement -> variable  . '=' constant ';' 
+25: assignment_statement -> variable  . '=' bool_condition ';' 
+  0:   On '=' to state 35
+
+
+State 33:
+26: variable -> NAME  . 
+  Reduce by 26: variable -> NAME  . 
+
+
+State 34:
+20: executable_statement_list -> assignment_statement_list RETURN ';'  . 
+  Reduce by 20: executable_statement_list -> assignment_statement_list RETURN ';'  . 
+
+
+State 35:
+23: assignment_statement -> variable '='  . variable ';' 
+24: assignment_statement -> variable '='  . constant ';' 
+25: assignment_statement -> variable '='  . bool_condition ';' 
+  0:   On variable to state 36
+  1:   On constant to state 37
+  2:   On bool_condition to state 38
+  3:   On NAME to state 33
+  4:   On INTEGER_NUMBER to state 39
+  5:   On bool_operand to state 40
+
+
+State 36:
+23: assignment_statement -> variable '=' variable  . ';' 
+4: bool_operand -> variable  . 
+  0:   On ';' to state 41
+  Reduce by 4: bool_operand -> variable  . 
+
+
+State 37:
+24: assignment_statement -> variable '=' constant  . ';' 
+3: bool_operand -> constant  . 
+  0:   On ';' to state 42
+  Reduce by 3: bool_operand -> constant  . 
+
+
+State 38:
+25: assignment_statement -> variable '=' bool_condition  . ';' 
+  0:   On ';' to state 43
+
+
+State 39:
+27: constant -> INTEGER_NUMBER  . 
+  Reduce by 27: constant -> INTEGER_NUMBER  . 
+
+
+State 40:
+9: bool_condition -> bool_operand  . bool_operator bool_operand 
+  0:   On bool_operator to state 44
+  1:   On '<' to state 45
+  2:   On '>' to state 46
+
+
+State 41:
+23: assignment_statement -> variable '=' variable ';'  . 
+  Reduce by 23: assignment_statement -> variable '=' variable ';'  . 
+
+
+State 42:
+24: assignment_statement -> variable '=' constant ';'  . 
+  Reduce by 24: assignment_statement -> variable '=' constant ';'  . 
+
+
+State 43:
+25: assignment_statement -> variable '=' bool_condition ';'  . 
+  Reduce by 25: assignment_statement -> variable '=' bool_condition ';'  . 
+
+
+State 44:
+9: bool_condition -> bool_operand bool_operator  . bool_operand 
+  0:   On bool_operand to state 47
+  1:   On constant to state 48
+  2:   On variable to state 49
+  3:   On INTEGER_NUMBER to state 39
+  4:   On NAME to state 33
+
+
+State 45:
+5: bool_operator -> '<'  . 
+8: bool_operator -> '<'  . '=' 
+  0:   On '=' to state 50
+  Reduce by 5: bool_operator -> '<'  . 
+
+
+State 46:
+6: bool_operator -> '>'  . 
+7: bool_operator -> '>'  . '=' 
+  0:   On '=' to state 51
+  Reduce by 6: bool_operator -> '>'  . 
+
+
+State 47:
+9: bool_condition -> bool_operand bool_operator bool_operand  . 
+  Reduce by 9: bool_condition -> bool_operand bool_operator bool_operand  . 
+
+
+State 48:
+3: bool_operand -> constant  . 
+  Reduce by 3: bool_operand -> constant  . 
+
+
+State 49:
+4: bool_operand -> variable  . 
+  Reduce by 4: bool_operand -> variable  . 
+
+
+State 50:
+8: bool_operator -> '<' '='  . 
+  Reduce by 8: bool_operator -> '<' '='  . 
+
+
+State 51:
+7: bool_operator -> '>' '='  . 
+  Reduce by 7: bool_operator -> '>' '='  . 
+
+
+
