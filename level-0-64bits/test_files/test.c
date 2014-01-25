@@ -1,7 +1,7 @@
 int a;
 main()
 {
-	int b;
-	b<a;
-	}
+	int a = 3;
+	int b = 2;
+	int c = a > b;
 }

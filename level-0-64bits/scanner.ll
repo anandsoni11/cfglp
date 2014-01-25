@@ -24,6 +24,8 @@
 %filenames="scanner"
 %lex-source="scanner.cc"
 
+LE 	[<=]
+GE	[>=]
 %%
 
 int		{
@@ -38,6 +40,16 @@ return		{
 
 [<>:{}()!;=]	{
 			store_token_name("META CHAR");
+			return matched()[0];
+		}
+
+LE		{
+			store_token_name("LESS THAN OP");
+			return matched()[0];
+		}
+
+GE		{
+			store_token_name("GREATER THAN OP");
 			return matched()[0];
 		}
 
