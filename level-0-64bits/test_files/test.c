@@ -1,8 +1,7 @@
 int a;
 main()
 {
-    int b;
-    b = (1);
-    a = b == (!2);
-    a = a;
+    int b,c,d;
+    b = 3;
+    if(a) b =c;
 }
