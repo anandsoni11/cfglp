@@ -41,7 +41,7 @@
 
 %token <integer_value> INTEGER_NUMBER
 %token <string_value> NAME
-%token RETURN INTEGER IF GOTO ELSE
+%token RETURN INTEGER IF ELSE GOTO
 /*%type <symbol_table> declaration_statement_list
 %type <symbol_entry> declaration_statement
 %type <basic_block_list> basic_block_list
