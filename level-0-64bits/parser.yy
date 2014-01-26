@@ -53,6 +53,7 @@
 %type <ast> constant*/
 
 /********PRECEDENCE RULES*********/
+%left AND_OP OR_OP
 %left NE_OP EE_OP
 %left LTE_OP GTE_OP '<' '>'
 %start program
@@ -110,6 +111,10 @@ bool_operator:
 	EE_OP
 |	
 	NE_OP
+|	
+	AND_OP
+|	
+	OR_OP
 ;
 
 bool_expression:

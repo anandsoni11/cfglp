@@ -53,7 +53,15 @@ return		{
 			store_token_name("NE OP");
 			return Parser::NE_OP;
 		}
+"&&"		{
+			store_token_name("AND OP");
+			return Parser::AND_OP;
+		}
 
+"||"		{
+			store_token_name("OR OP");
+			return Parser::OR_OP;
+		}
 
 [<>:{}()!;=?]	{
 			store_token_name("META CHAR");
