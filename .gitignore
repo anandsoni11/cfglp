@@ -1,7 +1,7 @@
 *.o
 *.swp
 *.out
-*.cs306.*
+*.cs306*
 *.output
 parser.cc
 scanner.cc
