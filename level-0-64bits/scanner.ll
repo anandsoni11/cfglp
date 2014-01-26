@@ -35,35 +35,20 @@ return		{
 			store_token_name("RETURN");
 			return Parser::RETURN; 
 		}
-
-"<="		{
-			store_token_name("LTE OP");
-			return Parser::LTE_OP;
+if		{ 
+			store_token_name("IF");
+			return Parser::IF; 
+		}
+else	{ 
+			store_token_name("ELSE");
+			return Parser::ELSE; 
+		}
+goto	{ 
+			store_token_name("GOTO");
+			return Parser::GOTO; 
 		}
 
-">="		{
-			store_token_name("GTE OP");
-			return Parser::GTE_OP;
-		}
-"=="		{
-			store_token_name("EE OP");
-			return Parser::EE_OP;
-		}
-"!="		{
-			store_token_name("NE OP");
-			return Parser::NE_OP;
-		}
-"&&"		{
-			store_token_name("AND OP");
-			return Parser::AND_OP;
-		}
-
-"||"		{
-			store_token_name("OR OP");
-			return Parser::OR_OP;
-		}
-
-[<>:{}()!;=?]	{
+[<>:{}()!;=]	{
 			store_token_name("META CHAR");
 			return matched()[0];
 		}

@@ -41,7 +41,7 @@
 
 %token <integer_value> INTEGER_NUMBER
 %token <string_value> NAME
-%token RETURN INTEGER 
+%token RETURN INTEGER IF GOTO ELSE
 /*%type <symbol_table> declaration_statement_list
 %type <symbol_entry> declaration_statement
 %type <basic_block_list> basic_block_list
@@ -53,9 +53,6 @@
 %type <ast> constant*/
 
 /********PRECEDENCE RULES*********/
-%left AND_OP OR_OP
-%left NE_OP EE_OP
-%left LTE_OP GTE_OP '<' '>'
 %start program
 
 %%
@@ -69,8 +66,6 @@ program:
 ;
 
 expression:
-    unary_expression
-|
 	bool_expression
 ;
 
@@ -78,47 +73,27 @@ atomic_expression: /* TODO string */
 	variable
 |
 	constant
-|
-	'(' expression ')'
 ;
 
-unary_expression:
-    unary_operator unary_expression
-|
-    atomic_expression
-;
-
-/*
-conditional_expression:
-	bool_expression '?' expression ':' expression
-;
-*/	
-
-
-unary_operator:
-    '!'
-;
 
 bool_operator:
 	'<'
 |	
 	'>'
 |	
-	GTE_OP
+	'>' '='
 |	
-	LTE_OP
+	'<' '='
 |	
-	EE_OP
+    '!' '='
 |	
-	NE_OP
-|	
-	AND_OP
-|	
-	OR_OP
+    '=' '='
 ;
 
 bool_expression:
-	expression bool_operator expression
+	bool_expression bool_operator atomic_expression
+|
+    atomic_expression
 ;
 
 procedure_name:
@@ -149,14 +124,22 @@ basic_block_list:
 	
 ;
 
+basic_block_id:
+    '<' NAME INTEGER_NUMBER '>' 
+;
+
 basic_block:
-	'<' NAME INTEGER_NUMBER '>' ':' executable_statement_list
+    basic_block_id ':' executable_statement_list
 ;
 
 executable_statement_list:
 	assignment_statement_list
 |
 	assignment_statement_list RETURN ';'
+|
+	assignment_statement_list  if_statement
+|
+	assignment_statement  assignment_statement_list goto_statement
 ;
 
 assignment_statement_list:
@@ -168,6 +151,16 @@ assignment_statement:
 	variable '=' expression ';'
 ;
 
+goto_statement:
+    GOTO basic_block_id ';'
+;
+
+if_statement:
+    IF '(' bool_expression ')'
+        goto_statement
+    ELSE
+        goto_statement
+;
 variable:
 	NAME
 ;
