@@ -51,6 +51,10 @@
 %type <ast> assignment_statement
 %type <ast> variable
 %type <ast> constant*/
+
+/********PRECEDENCE RULES*********/
+%left NE_OP EE_OP
+%left LTE_OP GTE_OP '<' '>'
 %start program
 
 %%
@@ -64,27 +68,48 @@ program:
 ;
 
 expression:
+    unary_expression
+|
+	bool_expression
+;
+
+atomic_expression: /* TODO string */
 	variable
 |
 	constant
 |
-	bool_expression
-|
-	conditional_expression
+	'(' expression ')'
 ;
 
+unary_expression:
+    unary_operator unary_expression
+|
+    atomic_expression
+;
+
+/*
 conditional_expression:
 	bool_expression '?' expression ':' expression
-;	
+;
+*/	
+
+
+unary_operator:
+    '!'
+;
 
 bool_operator:
 	'<'
 |	
 	'>'
-|
-	'>''='
-|
-	'<''='
+|	
+	GTE_OP
+|	
+	LTE_OP
+|	
+	EE_OP
+|	
+	NE_OP
 ;
 
 bool_expression:
@@ -135,18 +160,7 @@ assignment_statement_list:
 ;
 
 assignment_statement:
-<<<<<<< HEAD
-	variable '=' constant
-|
-	variable '=' variable
-|
-	variable '=' bool_expression
-|
-	variable '=' conditional_expression
-
-=======
-	variable '=' expression
->>>>>>> dcd8e34d21873b1715f970ad51b882a4288fe471
+	variable '=' expression ';'
 ;
 
 variable:

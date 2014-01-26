@@ -1,0 +1,10 @@
+*.o
+*.swp
+*.out
+*.cs306.*
+*.output
+parser.cc
+scanner.cc
+scannerbase.h
+parserbase.h
+cfglp
