@@ -139,7 +139,7 @@ executable_statement_list:
 |
 	assignment_statement_list  if_statement
 |
-	assignment_statement  assignment_statement_list goto_statement
+	assignment_statement_list goto_statement
 ;
 
 assignment_statement_list:
