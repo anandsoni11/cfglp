@@ -170,6 +170,7 @@ executable_statement_list:
 ;
 
 assignment_statement_list:
+    {}
 |
 	assignment_statement_list assignment_statement
     {}
