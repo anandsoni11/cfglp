@@ -4,7 +4,8 @@ main()
 	int b = 3;
 	int c = 3;
 
-	if (c > (a > b)?0:21)
+    c = a<=b;
+	if (c >= a?0:21)
 		a = 6;
 	else
 		b = 6;

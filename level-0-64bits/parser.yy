@@ -60,99 +60,129 @@
 program:
 	declaration_statement_list procedure_name
 	procedure_body
+    {}
 |
 	procedure_name
 	procedure_body
+    {}
 ;
 
 expression:
 	bool_expression
+    {}
 ;
 
 atomic_expression: /* TODO string */
 	variable
+    {}
 |
 	constant
+    {}
 ;
 
 
 bool_operator:
 	'<'
+    {}
 |	
 	'>'
+    {}
 |	
 	'>' '='
+    {}
 |	
 	'<' '='
+    {}
 |	
     '!' '='
+    {}
 |	
     '=' '='
+    {}
 ;
 
 bool_expression:
 	bool_expression bool_operator atomic_expression
+    {}
 |
     atomic_expression
+    {}
 ;
 
 procedure_name:
 	NAME '(' ')'
+    {}
 ;
 
 procedure_body:
 	'{' declaration_statement_list
 	basic_block_list '}'
+    {}
 |
 	'{' basic_block_list '}'
+    {}
 ;
 
 declaration_statement_list:
 	declaration_statement
+    {}
 |
 	declaration_statement_list declaration_statement
+    {}
 			;
 
 declaration_statement:
 	INTEGER NAME ';'
+    {}
 ;
 
 basic_block_list:
 	basic_block_list basic_block
+    {}
 |
 	basic_block
 	
+    {}
 ;
 
 basic_block_id:
     '<' NAME INTEGER_NUMBER '>' 
+    {}
 ;
 
 basic_block:
     basic_block_id ':' executable_statement_list
+    {}
 ;
 
 executable_statement_list:
 	assignment_statement_list
+    {}
 |
 	assignment_statement_list RETURN ';'
+    {}
 |
 	assignment_statement_list  if_statement
+    {}
 |
 	assignment_statement_list goto_statement
+    {}
 ;
 
 assignment_statement_list:
 |
 	assignment_statement_list assignment_statement
+    {}
 ;
 
 assignment_statement:
 	variable '=' expression ';'
+    {}
 ;
 
 goto_statement:
     GOTO basic_block_id ';'
+    {}
 ;
 
 if_statement:
@@ -160,13 +190,16 @@ if_statement:
         goto_statement
     ELSE
         goto_statement
+        {}
 ;
 variable:
 	NAME
+    {}
 ;
 
 constant:
 	INTEGER_NUMBER
+    {}
 ;
 /*%union 
 {
