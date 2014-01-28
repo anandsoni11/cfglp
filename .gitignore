@@ -3,6 +3,7 @@
 *.out
 *.cs306*
 *.output
+*.toks
 parser.cc
 scanner.cc
 scannerbase.h
