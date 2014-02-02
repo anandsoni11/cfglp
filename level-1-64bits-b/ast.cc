@@ -390,7 +390,7 @@ void If_Ast::print_ast(ostream & file_buffer)
 {
 	file_buffer << AST_SPACE << "If_Else statement:\n";
     condition->print_ast(file_buffer);
-    cout <<endl;
+    cout <<endl; //this is required because rel_expr->print() doesn't end in newline
     cout << AST_NODE_SPACE << "True Successor: "<< ((Goto_Ast*)goto_true)->get_successor() <<endl;
     cout << AST_NODE_SPACE << "False Successor: "<< ((Goto_Ast*)goto_false)->get_successor() <<endl;
 }
@@ -398,20 +398,24 @@ void If_Ast::print_ast(ostream & file_buffer)
 Eval_Result & If_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
 {
 
+	Eval_Result & result = *new Eval_Result_Value_Int();
+    int successor;
+
     cout <<endl;
     print_ast(file_buffer);
 
 	Eval_Result & condition_result = condition->evaluate(eval_env, file_buffer);
     int cond_result_value = condition_result.get_value();
     if(cond_result_value == 1){ //true statment
-        Eval_Result &result = goto_true->evaluate(eval_env, file_buffer);
-        cout << AST_SPACE << "Condition True : Goto (BB "<< result.get_value() << ")"<<endl;
-        return result;
+        successor =((Goto_Ast*)goto_true)->get_successor();
+        cout << AST_SPACE << "Condition True : Goto (BB "<< successor << ")"<<endl;
     }
     else{ //false statment
-        Eval_Result &result = goto_false->evaluate(eval_env, file_buffer);
-        cout << AST_SPACE << "Condition False : Goto (BB "<< result.get_value() << ")"<<endl;
-        return result;
+        successor =((Goto_Ast*)goto_false)->get_successor();
+        cout << AST_SPACE << "Condition False : Goto (BB "<< successor << ")"<<endl;
     }
+    
+    result.set_result_enum(go_to_result); //set the type to go_to_result enum
+    result.set_value(successor);
 
 }
