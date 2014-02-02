@@ -39,9 +39,15 @@
 	Procedure * procedure;
 };
 
-%token <integer_value> INTEGER_NUMBER
-%token <string_value> NAME
-%token RETURN INTEGER IF ELSE GOTO
+%token <integer_value> NUM /* 257 */
+%token BB_ID  /* 258 */
+%token <string_value> NAME  /* 259 */
+%token RETURN INTEGER IF ELSE GOTO /* 260 - 264 */
+
+%right ASSIGN_OP /* 265 - 271 */
+%left NE EQ
+%left LT LE GT GE
+
 /*%type <symbol_table> declaration_statement_list
 %type <symbol_entry> declaration_statement
 %type <basic_block_list> basic_block_list
@@ -68,7 +74,7 @@ program:
 ;
 
 expression:
-	bool_expression
+	rel_expression
     {}
 ;
 
@@ -81,28 +87,28 @@ atomic_expression: /* TODO string */
 ;
 
 
-bool_operator:
-	'<'
+rel_operator:
+	LT
     {}
 |	
-	'>'
+	GT
     {}
 |	
-	'>' '='
+    GE
     {}
 |	
-	'<' '='
+    LE
     {}
 |	
-    '!' '='
+    NE
     {}
 |	
-    '=' '='
+    EQ
     {}
 ;
 
-bool_expression:
-	bool_expression bool_operator atomic_expression
+rel_expression:
+	rel_expression rel_operator atomic_expression
     {}
 |
     atomic_expression
@@ -145,13 +151,9 @@ basic_block_list:
     {}
 ;
 
-basic_block_id:
-    '<' NAME INTEGER_NUMBER '>' 
-    {}
-;
 
 basic_block:
-    basic_block_id ':' executable_statement_list
+    BB_ID ':' executable_statement_list
     {}
 ;
 
@@ -177,17 +179,17 @@ assignment_statement_list:
 ;
 
 assignment_statement:
-	variable '=' expression ';'
+	variable ASSIGN_OP expression ';'
     {}
 ;
 
 goto_statement:
-    GOTO basic_block_id ';'
+    GOTO BB_ID ';'
     {}
 ;
 
 if_statement:
-    IF '(' bool_expression ')'
+    IF '(' rel_expression ')'
         goto_statement
     ELSE
         goto_statement
@@ -199,7 +201,7 @@ variable:
 ;
 
 constant:
-	INTEGER_NUMBER
+	NUM
     {}
 ;
 /*%union 
