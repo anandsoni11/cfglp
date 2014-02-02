@@ -342,5 +342,29 @@ Eval_Result & Return_Ast::evaluate(Local_Environment & eval_env, ostream & file_
 	Eval_Result & result = *new Eval_Result_Value_Int();
 	return result;
 }
-
 template class Number_Ast<int>;
+
+///////////////////////////////////////////////////////////////////////////////
+Goto_Ast::Goto_Ast(int succ)
+{
+    successor = succ;
+}
+
+Goto_Ast::~Goto_Ast()
+{}
+
+void Goto_Ast::print_ast(ostream & file_buffer)
+{
+	file_buffer << AST_SPACE << "Goto statement:\n";
+	file_buffer << AST_NODE_SPACE"Successor: "<< successor <<endl;
+}
+
+Eval_Result & Goto_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
+{
+    print_ast(file_buffer);
+	Eval_Result & result = *new Eval_Result_Value_Int();
+    result.set_result_enum(go_to_result); //set the type to go_to_result enum
+    result.set_value(successor);
+	file_buffer << AST_SPACE << "GOTO (BB "<< successor <<")"<<"\n";
+	return result;
+}

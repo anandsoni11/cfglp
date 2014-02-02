@@ -115,6 +115,22 @@ Basic_Block * Procedure::get_next_bb(Basic_Block & current_bb)
 	return NULL;
 }
 
+Basic_Block * Procedure::get_target_bb(int target)
+{
+	bool flag = false;
+
+	list<Basic_Block *>::iterator i;
+	for(i = basic_block_list.begin(); i != basic_block_list.end(); i++)
+	{
+		if((*i)->get_bb_number() == target)
+		{
+            return (*i);
+        }
+	}
+	
+	return NULL;
+}
+
 Eval_Result & Procedure::evaluate(ostream & file_buffer)
 {
 	Local_Environment & eval_env = *new Local_Environment();
@@ -131,7 +147,19 @@ Eval_Result & Procedure::evaluate(ostream & file_buffer)
 	while (current_bb)
 	{
 		result = &(current_bb->evaluate(eval_env, file_buffer));
-		current_bb = get_next_bb(*current_bb);		
+        if(result->get_result_enum() == go_to_result){ //if this is the result of go-to stmt , update the current_bb accordingly
+            int target = result->get_value();
+            current_bb = get_target_bb(target);
+            if(current_bb == NULL) {
+                char c_error[100];
+                sprintf(c_error, "bb %d doesn't exist", target);
+                string error(c_error);
+                report_error(error, -1); //-1 means this is cfglp error (o/w line > 0)
+            }
+        }
+        else{
+            current_bb = get_next_bb(*current_bb);		
+        }
 	}
 
 	file_buffer << "\n\n";
@@ -140,4 +168,3 @@ Eval_Result & Procedure::evaluate(ostream & file_buffer)
 
 	return *result;
 }
-

@@ -61,6 +61,7 @@
 %type <ast> rel_expression
 %type <integer_value> rel_operator
 %type <ast> atomic_expression
+%type <ast> goto_statement
 
 /********PRECEDENCE RULES*********/
 %start program
@@ -267,10 +268,18 @@ executable_statement_list:
 |
 	assignment_statement_list  if_statement
     {}
+*/
 |
 	assignment_statement_list goto_statement
-    {}
-*/
+    {
+		if ($1 != NULL)
+			$$ = $1;
+
+		else
+			$$ = new list<Ast *>;
+
+		$$->push_back($2);
+    }
 ;
 
 assignment_statement_list:
@@ -300,12 +309,12 @@ assignment_statement:
 	}
 ;
 
-/*
 goto_statement:
     GOTO BB_ID ';'
-    {}
+    {
+        $$ = new Goto_Ast($2);
+    }
 ;
-*/
 
 /*
 if_statement:

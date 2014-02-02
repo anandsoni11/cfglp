@@ -140,4 +140,16 @@ public:
 	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
 };
 
+class Goto_Ast:public Ast
+{
+    int successor;
+
+public:
+	Goto_Ast(int succ);
+	~Goto_Ast();
+
+	void print_ast(ostream & file_buffer);
+
+	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
+};
 #endif
