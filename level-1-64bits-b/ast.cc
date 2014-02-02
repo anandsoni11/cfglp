@@ -85,7 +85,7 @@ Data_Type Assignment_Ast::get_data_type()
 
 bool Assignment_Ast::check_ast(int line)
 {
-    std::cout << lhs->get_data_type() << " " << rhs->get_data_type() <<endl;
+    //std::cout << lhs->get_data_type() << " " << rhs->get_data_type() <<endl;
 	if (lhs->get_data_type() == rhs->get_data_type())
 	{
 		node_data_type = lhs->get_data_type();
@@ -158,15 +158,15 @@ bool Relational_Expr_Ast::check_ast(int line)
 
 void Relational_Expr_Ast::print_ast(ostream & file_buffer)
 {
-	file_buffer << AST_SPACE << "Condition: " << rel_operators_map[rel_op] <<endl;
+	file_buffer << "\n"<<COND_SPACE << "Condition: " << rel_operators_map[rel_op] <<endl;
 
-	file_buffer << AST_NODE_SPACE"LHS (";
+	file_buffer << COND_NODE_SPACE"LHS (";
 	lhs->print_ast(file_buffer);
 	file_buffer << ")\n";
 
-	file_buffer << AST_NODE_SPACE << "RHS (";
+	file_buffer << COND_NODE_SPACE << "RHS (";
 	rhs->print_ast(file_buffer);
-	file_buffer << ")\n";
+	file_buffer << ")";
 }
 
 int Relational_Expr_Ast::compare(int x, int y){
@@ -195,7 +195,7 @@ Eval_Result & Relational_Expr_Ast::evaluate(Local_Environment & eval_env, ostrea
     Eval_Result & result = *new Eval_Result_Value_Int();
     result.set_value(this->compare(lhs_result.get_value(), rhs_result.get_value()));
 
-	print_ast(file_buffer);
+	//print_ast(file_buffer);
 
 	return result;
 }
@@ -226,7 +226,7 @@ void Name_Ast::print_value(Local_Environment & eval_env, ostream & file_buffer)
 	Eval_Result_Value * loc_var_val = eval_env.get_variable_value(variable_name);
 	Eval_Result_Value * glob_var_val = interpreter_global_table.get_variable_value(variable_name);
 
-	file_buffer << "\n" << AST_SPACE << variable_name << " : ";
+	file_buffer  << AST_SPACE << variable_name << " : ";
 
 	if (!eval_env.is_variable_defined(variable_name) && !interpreter_global_table.is_variable_defined(variable_name))
 		file_buffer << "undefined";
@@ -338,6 +338,7 @@ void Return_Ast::print_ast(ostream & file_buffer)
 
 Eval_Result & Return_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
 {
+	file_buffer << AST_SPACE << "Return <NOTHING>\n";
 	Eval_Result & result = *new Eval_Result_Value_Int();
 	return result;
 }

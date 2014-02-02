@@ -61,7 +61,7 @@ goto	{
             ParserBase::STYPE__ * val = getSval();
             std::string bb = matched();
             std::string id = bb.substr(4, bb.length()-5);
-            std::cout <<"Basic Block #'" << id <<"'"<<endl;
+            //std::cout <<"Basic Block #'" << id <<"'"<<endl;
             val->integer_value = atoi(id.c_str());
             return Parser::BB_ID;
         }

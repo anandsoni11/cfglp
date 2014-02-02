@@ -29,6 +29,8 @@
 
 #define AST_SPACE "         "
 #define AST_NODE_SPACE "            "
+#define COND_SPACE "            "
+#define COND_NODE_SPACE "               "
 
 static map<int, string> rel_operators_map = {{0, "LT"}, {1, "GT"}, {2, "GE"}, {3, "LE"}, {4, "NE"}, {5, "EQ"}};
 
