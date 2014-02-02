@@ -170,6 +170,7 @@ void Relational_Expr_Ast::print_ast(ostream & file_buffer)
 }
 
 int Relational_Expr_Ast::compare(int x, int y){
+    //cout << "operator is " << rel_op << "X is " << x << " Y is "<<y <<endl;
     if(rel_op == 0) return (x < y);
     if(rel_op == 1) return (x > y);
     if(rel_op == 2) return (x >= y);
@@ -185,7 +186,7 @@ Eval_Result & Relational_Expr_Ast::evaluate(Local_Environment & eval_env, ostrea
 	if (rhs_result.is_variable_defined() == false)
 		report_error("Variable should be defined to be on rhs", NOLINE);
 
-	Eval_Result & lhs_result = rhs->evaluate(eval_env, file_buffer);
+	Eval_Result & lhs_result = lhs->evaluate(eval_env, file_buffer);
 
 	if (lhs_result.is_variable_defined() == false)
 		report_error("Variable should be defined to be on lhs", NOLINE);
@@ -193,9 +194,9 @@ Eval_Result & Relational_Expr_Ast::evaluate(Local_Environment & eval_env, ostrea
 
 	// Print the result
     Eval_Result & result = *new Eval_Result_Value_Int();
-    result.set_value(this->compare(lhs_result.get_value(), rhs_result.get_value()));
-
-	//print_ast(file_buffer);
+    int compare_result = this->compare(lhs_result.get_value(), rhs_result.get_value());
+    //cout << "Compare result is "<< compare_result <<endl;
+    result.set_value(compare_result);
 
 	return result;
 }
@@ -359,6 +360,10 @@ void Goto_Ast::print_ast(ostream & file_buffer)
 	file_buffer << AST_NODE_SPACE"Successor: "<< successor <<endl;
 }
 
+int Goto_Ast::get_successor(){
+    return successor;
+}
+
 Eval_Result & Goto_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
 {
     print_ast(file_buffer);
@@ -367,4 +372,46 @@ Eval_Result & Goto_Ast::evaluate(Local_Environment & eval_env, ostream & file_bu
     result.set_value(successor);
 	file_buffer << AST_SPACE << "GOTO (BB "<< successor <<")"<<"\n";
 	return result;
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+
+If_Ast::If_Ast(Ast * temp_condition, Ast * temp_goto_true, Ast* temp_goto_false)
+{
+	condition = temp_condition;
+	goto_true = temp_goto_true;
+	goto_false= temp_goto_false;
+}
+
+If_Ast::~If_Ast()
+{}
+
+void If_Ast::print_ast(ostream & file_buffer)
+{
+	file_buffer << AST_SPACE << "If_Else statement:\n";
+    condition->print_ast(file_buffer);
+    cout <<endl;
+    cout << AST_NODE_SPACE << "True Successor: "<< ((Goto_Ast*)goto_true)->get_successor() <<endl;
+    cout << AST_NODE_SPACE << "False Successor: "<< ((Goto_Ast*)goto_false)->get_successor() <<endl;
+}
+
+Eval_Result & If_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
+{
+
+    cout <<endl;
+    print_ast(file_buffer);
+
+	Eval_Result & condition_result = condition->evaluate(eval_env, file_buffer);
+    int cond_result_value = condition_result.get_value();
+    if(cond_result_value == 1){ //true statment
+        Eval_Result &result = goto_true->evaluate(eval_env, file_buffer);
+        cout << AST_SPACE << "Condition True : Goto (BB "<< result.get_value() << ")"<<endl;
+        return result;
+    }
+    else{ //false statment
+        Eval_Result &result = goto_false->evaluate(eval_env, file_buffer);
+        cout << AST_SPACE << "Condition False : Goto (BB "<< result.get_value() << ")"<<endl;
+        return result;
+    }
+
 }

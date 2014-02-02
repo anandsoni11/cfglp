@@ -62,6 +62,7 @@
 %type <integer_value> rel_operator
 %type <ast> atomic_expression
 %type <ast> goto_statement
+%type <ast> if_statement
 
 /********PRECEDENCE RULES*********/
 %start program
@@ -264,11 +265,17 @@ executable_statement_list:
 
 		$$->push_back(ret);
 	}
-/*
 |
 	assignment_statement_list  if_statement
-    {}
-*/
+    {
+		if ($1 != NULL)
+			$$ = $1;
+
+		else
+			$$ = new list<Ast *>;
+
+		$$->push_back($2);
+    }
 |
 	assignment_statement_list goto_statement
     {
@@ -316,15 +323,16 @@ goto_statement:
     }
 ;
 
-/*
 if_statement:
     IF '(' rel_expression ')'
         goto_statement
     ELSE
         goto_statement
-        {}
+        {
+            $$ = new If_Ast($3, $5, $7);
+        }
 ;
-*/
+
 expression:
 	rel_expression
     {

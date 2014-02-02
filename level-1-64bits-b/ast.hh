@@ -149,6 +149,22 @@ public:
 	~Goto_Ast();
 
 	void print_ast(ostream & file_buffer);
+    int get_successor();
+
+	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
+};
+
+class If_Ast:public Ast
+{
+	Ast * condition;
+	Ast * goto_true;
+	Ast * goto_false;
+
+public:
+	If_Ast(Ast * temp_condition, Ast * temp_goto_true, Ast* temp_goto_false);
+	~If_Ast();
+
+	void print_ast(ostream & file_buffer);
 
 	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
 };
