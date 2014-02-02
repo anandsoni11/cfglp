@@ -35,48 +35,76 @@ return		{
 			store_token_name("RETURN");
 			return Parser::RETURN; 
 		}
+
 if		{ 
 			store_token_name("IF");
 			return Parser::IF; 
 		}
+
 else	{ 
 			store_token_name("ELSE");
 			return Parser::ELSE; 
 		}
+
 goto	{ 
 			store_token_name("GOTO");
 			return Parser::GOTO; 
 		}
+
 "="     {
 			store_token_name("ASSIGN_OP");
 			return Parser::ASSIGN_OP; 
         }
+
 ("<bb "([0-9]+)">") {
             store_token_name("BASIC BLOCK");
+            ParserBase::STYPE__ * val = getSval();
+            std::string bb = matched();
+            std::string id = bb.substr(4, bb.length()-5);
+            std::cout <<"Basic Block #'" << id <<"'"<<endl;
+            val->integer_value = atoi(id.c_str());
             return Parser::BB_ID;
         }
+
 "<"     {
 			store_token_name("LT");
+            ParserBase::STYPE__ * val = getSval();
+            val->integer_value = 0;
 			return Parser::LT; 
         }
+
 ">"     {
 			store_token_name("GT");
+            ParserBase::STYPE__ * val = getSval();
+            val->integer_value = 1;
 			return Parser::GT; 
         }
-"<="     {
-			store_token_name("LE");
-			return Parser::LE; 
-        }
+
 ">="     {
 			store_token_name("GE");
+            ParserBase::STYPE__ * val = getSval();
+            val->integer_value = 2;
 			return Parser::GE; 
         }
+
+"<="     {
+			store_token_name("LE");
+            ParserBase::STYPE__ * val = getSval();
+            val->integer_value = 3;
+			return Parser::LE; 
+        }
+
 "!="     {
 			store_token_name("NE");
+            ParserBase::STYPE__ * val = getSval();
+            val->integer_value = 4;
 			return Parser::NE; 
         }
+
 "=="     {
 			store_token_name("EQ");
+            ParserBase::STYPE__ * val = getSval();
+            val->integer_value = 5;
 			return Parser::EQ; 
         }
 
@@ -85,6 +113,7 @@ goto	{
 			store_token_name("META CHAR");
 			return matched()[0];
 		}
+
 [-]?[[:digit:]_]+ 	{ 
 				store_token_name("NUM");
 

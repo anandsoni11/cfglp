@@ -85,6 +85,7 @@ Data_Type Assignment_Ast::get_data_type()
 
 bool Assignment_Ast::check_ast(int line)
 {
+    std::cout << lhs->get_data_type() << " " << rhs->get_data_type() <<endl;
 	if (lhs->get_data_type() == rhs->get_data_type())
 	{
 		node_data_type = lhs->get_data_type();
@@ -125,6 +126,81 @@ Eval_Result & Assignment_Ast::evaluate(Local_Environment & eval_env, ostream & f
 	return result;
 }
 /////////////////////////////////////////////////////////////////
+Relational_Expr_Ast::Relational_Expr_Ast(Ast * temp_lhs, Ast * temp_rhs, int temp_op, Data_Type constant_data_type)
+{
+	lhs = temp_lhs;
+	rhs = temp_rhs;
+    rel_op = temp_op;
+	node_data_type = constant_data_type;
+}
+
+Relational_Expr_Ast::~Relational_Expr_Ast()
+{
+	delete lhs;
+	delete rhs;
+}
+
+Data_Type Relational_Expr_Ast::get_data_type()
+{
+	return node_data_type;
+}
+
+bool Relational_Expr_Ast::check_ast(int line)
+{
+	if (lhs->get_data_type() == rhs->get_data_type())
+	{
+		node_data_type = lhs->get_data_type();
+		return true;
+	}
+
+	report_error("Relational statement data type not compatible", line);
+}
+
+void Relational_Expr_Ast::print_ast(ostream & file_buffer)
+{
+	file_buffer << AST_SPACE << "Condition: " << rel_operators_map[rel_op] <<endl;
+
+	file_buffer << AST_NODE_SPACE"LHS (";
+	lhs->print_ast(file_buffer);
+	file_buffer << ")\n";
+
+	file_buffer << AST_NODE_SPACE << "RHS (";
+	rhs->print_ast(file_buffer);
+	file_buffer << ")\n";
+}
+
+int Relational_Expr_Ast::compare(int x, int y){
+    if(rel_op == 0) return (x < y);
+    if(rel_op == 1) return (x > y);
+    if(rel_op == 2) return (x >= y);
+    if(rel_op == 3) return (x <= y);
+    if(rel_op == 4) return (x != y);
+    if(rel_op == 5) return (x == y);
+}
+
+Eval_Result & Relational_Expr_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
+{
+	Eval_Result & rhs_result = rhs->evaluate(eval_env, file_buffer);
+
+	if (rhs_result.is_variable_defined() == false)
+		report_error("Variable should be defined to be on rhs", NOLINE);
+
+	Eval_Result & lhs_result = rhs->evaluate(eval_env, file_buffer);
+
+	if (lhs_result.is_variable_defined() == false)
+		report_error("Variable should be defined to be on lhs", NOLINE);
+
+
+	// Print the result
+    Eval_Result & result = *new Eval_Result_Value_Int();
+    result.set_value(this->compare(lhs_result.get_value(), rhs_result.get_value()));
+
+	print_ast(file_buffer);
+
+	return result;
+}
+
+//////////////////////////////////////////////////////////////////
 
 Name_Ast::Name_Ast(string & name, Symbol_Table_Entry & var_entry)
 {
