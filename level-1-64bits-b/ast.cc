@@ -122,6 +122,7 @@ Eval_Result & Assignment_Ast::evaluate(Local_Environment & eval_env, ostream & f
 	print_ast(file_buffer);
 
 	lhs->print_value(eval_env, file_buffer);
+    cout <<endl;
 
 	return result;
 }
@@ -158,7 +159,7 @@ bool Relational_Expr_Ast::check_ast(int line)
 
 void Relational_Expr_Ast::print_ast(ostream & file_buffer)
 {
-	file_buffer << "\n"<<COND_SPACE << "Condition: " << rel_operators_map[rel_op] <<endl;
+	file_buffer <<"\n"<<COND_SPACE << "Condition: " << rel_operators_map[rel_op] <<endl;
 
 	file_buffer << COND_NODE_SPACE"LHS (";
 	lhs->print_ast(file_buffer);
@@ -388,7 +389,7 @@ If_Ast::~If_Ast()
 
 void If_Ast::print_ast(ostream & file_buffer)
 {
-	file_buffer << AST_SPACE << "If_Else statement:\n";
+	file_buffer << AST_SPACE << "If_Else statement:";
     condition->print_ast(file_buffer);
     cout <<endl; //this is required because rel_expr->print() doesn't end in newline
     cout << AST_NODE_SPACE << "True Successor: "<< ((Goto_Ast*)goto_true)->get_successor() <<endl;
@@ -401,7 +402,6 @@ Eval_Result & If_Ast::evaluate(Local_Environment & eval_env, ostream & file_buff
 	Eval_Result & result = *new Eval_Result_Value_Int();
     int successor;
 
-    cout <<endl;
     print_ast(file_buffer);
 
 	Eval_Result & condition_result = condition->evaluate(eval_env, file_buffer);
