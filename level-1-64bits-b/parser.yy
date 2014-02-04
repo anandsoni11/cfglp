@@ -115,6 +115,7 @@ procedure_body:
 			int line = get_line_number();
 			report_error("Atleast 1 basic block should have a return statement", line);
 		}
+        check_goto_validity(); //check if every goto statement points to a block that exists
 
 		current_procedure->set_basic_block_list(*$4);
 
@@ -241,6 +242,7 @@ basic_block:
 			list<Ast *> * ast_list = new list<Ast *>;
 			$$ = new Basic_Block($1, *ast_list);
 		}
+        bb_blocks.push_back($1);
 
 	}
 ;
@@ -320,6 +322,7 @@ goto_statement:
     GOTO BB_ID ';'
     {
         $$ = new Goto_Ast($2);
+        goto_targets.push_back($2);
     }
 ;
 
