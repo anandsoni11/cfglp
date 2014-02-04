@@ -59,7 +59,6 @@
 %type <ast> constant
 %type <ast> expression
 %type <ast> rel_expression
-%type <integer_value> rel_operator
 %type <ast> atomic_expression
 %type <ast> goto_statement
 %type <ast> if_statement
@@ -355,41 +354,33 @@ atomic_expression: /* TODO string */
     }
 ;
 
-
-rel_operator:
-	LT
-    {
-        $$ = $1;
-    }
-|	
-	GT
-    {
-        $$ = $1;
-    }
-|	
-    GE
-    {
-        $$ = $1;
-    }
-|	
-    LE
-    {
-        $$ = $1;
-    }
-|	
-    NE
-    {
-        $$ = $1;
-    }
-|	
-    EQ
-    {
-        $$ = $1;
-    }
-;
-
 rel_expression:
-	rel_expression rel_operator atomic_expression
+	rel_expression LT rel_expression
+    {
+        $$ = new Relational_Expr_Ast($1, $3, $2, int_data_type);
+    }
+|
+	rel_expression GT rel_expression
+    {
+        $$ = new Relational_Expr_Ast($1, $3, $2, int_data_type);
+    }
+|
+	rel_expression GE rel_expression
+    {
+        $$ = new Relational_Expr_Ast($1, $3, $2, int_data_type);
+    }
+|
+	rel_expression LE rel_expression
+    {
+        $$ = new Relational_Expr_Ast($1, $3, $2, int_data_type);
+    }
+|
+	rel_expression NE rel_expression
+    {
+        $$ = new Relational_Expr_Ast($1, $3, $2, int_data_type);
+    }
+|
+	rel_expression EQ rel_expression
     {
         $$ = new Relational_Expr_Ast($1, $3, $2, int_data_type);
     }
