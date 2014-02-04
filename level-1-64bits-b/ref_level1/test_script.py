@@ -34,11 +34,11 @@ for f in cfgFiles:
     os.system(command)
     command = "./cfglp -eval -d " + f + " > generatedeval " 
     os.system(command) 
-    os.system("diff -B expected generated");
-    os.system("diff -B expectedast generatedast");
-    os.system("diff -B expectedeval generatedeval");
+    os.system("diff -B expected generated")
+    os.system("diff -B expectedast generatedast")
+    os.system("diff -B expectedeval generatedeval")
 
-exit(0)
+print("\n*****Done with the checking cfg files EXCEPT infi loops!!***\n")
 error_files=[]
 for f in files:
     fileName,fileExt = os.path.splitext( path + f)
@@ -52,9 +52,20 @@ for f in error_files:
     os.system(command) 
     command = "./cfglp -tokens " + f + " 2> generated " 
     os.system(command)
+    command = "./cfglp64 -ast  " + f + " 2> expectedast " 
+    os.system(command) 
+    command = "./cfglp -ast " + f + " 2> generatedast " 
+    os.system(command)
+    command = "./cfglp64 -eval  " + f + " 2> expectedeval " 
+    os.system(command) 
+    command = "./cfglp -eval " + f + " 2> generatedeval " 
+    os.system(command)
     #print("diff starts here \n");
-    os.system("diff -b expected generated");
+    os.system("diff -B expected generated")
+    os.system("diff -B expectedast generatedast")
+    os.system("diff -B expectedeval generatedeval")
 
+print("\n*****Done with the checking ecfg files!!***\n")
 
 
 #print cfgFiles
