@@ -1,0 +1,31 @@
+Submitted By:
+
+Ashish Sonone (110050022) and Anand Soni (110050037)
+
+1. We made changes in the following files:
+	scanner.ll, parser.yy, parser.ih, procedure.cc, procedure.hh, ast.hh, ast.cc, basic_block.cc, basic_block.hh.
+
+2. In scanner.ll, following changes were made:
+	a. Added token declarations for '=', 'BASIC BLOCK', '<', '>', '>=', '<=', '!=', '=='.
+	b. Return type of all logical operations set to int.
+	c. ID of the basic block was fetched from the "<bb id>" string and returned to Parser as 'BB_ID'.
+
+3. In parser.yy, following changes were made:
+	a. Added fuction calls in grammar declaration to execute -ast and -eval operations.
+	b. Modified rules for 'basic_block', 'rel_expression'
+	c. Added new tokens: BB_ID, NE, EQ, LT, LE, GT, GE.
+
+4. In Parser.ih, following changes were made:
+	a. Added a new function check_goto_validity to check if the block id encountered while evaluation or ast creation actuallu exists in the cfg.
+
+5. In procedure.cc, the following changes were made:
+	a. New functions get_start_basic_block (to get the first basic_block from the basic_block_list), get_next_bb(to get the basic_block which matches the current basic_block from the basic_block_list) and get_target_bb (to get the basic_block with a given id) were added.
+	b. evaluate function was modified to to get the GOTO statements working.
+	c. Corresponding declarations were made in the procedure.hh file.
+
+6. In ast.cc and ast.hh, following modifications were made:
+	a. New AST's for rel_expression, goto and if were implemented.
+	b. Corresponding Constructors, evaluate functions and print functions were written in each new AST class.
+
+7. In basic_block.cc and basic_block.hh, following changes were made:
+	a. evaluate and print functions were modified to evaluate each new basic block.  
