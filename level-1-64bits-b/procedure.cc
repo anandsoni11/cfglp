@@ -87,6 +87,9 @@ void Procedure::print_ast(ostream & file_buffer)
 	list<Basic_Block *>::iterator i;
 	for(i = basic_block_list.begin(); i != basic_block_list.end(); i++)
 		(*i)->print_bb(file_buffer);
+
+    i--;
+    (*i)->check_if_return();
 }
 	
 Basic_Block & Procedure::get_start_basic_block()
@@ -160,7 +163,14 @@ Eval_Result & Procedure::evaluate(ostream & file_buffer)
         else{
             current_bb = get_next_bb(*current_bb);		
         }
+        if(result->get_result_enum() == return_result){
+            break;
+        } //if this is the result of go-to stmt , update the current_bb accordingly
 	}
+
+    if(result->get_result_enum() != return_result){
+        report_internal_error("Atleast one of true, false, direct successors should be set");
+    } 
 
 	file_buffer << "\n\n";
 	file_buffer << LOC_VAR_SPACE << "Local Variables (after evaluating):\n";

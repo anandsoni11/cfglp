@@ -112,7 +112,7 @@ procedure_body:
 		if (return_statement_used_flag == false)
 		{
 			int line = get_line_number();
-			report_error("Atleast 1 basic block should have a return statement", line);
+		//	report_error("Atleast 1 basic block should have a return statement", line);
 		}
         check_goto_validity(); //check if every goto statement points to a block that exists
 

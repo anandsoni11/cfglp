@@ -35,7 +35,8 @@ typedef enum
 {
 	int_result,
 	void_result,
-    go_to_result //go_to_ast returns Eval_Result_Value_Int with (result status enum to be this)
+    go_to_result, //go_to_ast returns Eval_Result_Value_Int with (result status enum to be this)
+    return_result //go_to_ast returns Eval_Result_Value_Int with (result status enum to be this)
 } Result_Enum;
 
 class Eval_Result;

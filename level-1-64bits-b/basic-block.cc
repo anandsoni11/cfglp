@@ -59,6 +59,12 @@ void Basic_Block::print_bb(ostream & file_buffer)
 	for(i = statement_list.begin(); i != statement_list.end(); i++)
 		(*i)->print_ast(file_buffer);
 }
+void  Basic_Block::check_if_return(){
+    Ast * last = statement_list.back();
+    if(last->get_data_type() != return_data_type){
+        report_internal_error("No return at end of last basic block : Atleast one of true, false, direct successors should be set");
+    }
+}
 
 Eval_Result & Basic_Block::evaluate(Local_Environment & eval_env, ostream & file_buffer)
 {
@@ -66,6 +72,9 @@ Eval_Result & Basic_Block::evaluate(Local_Environment & eval_env, ostream & file
 
 	file_buffer << "\n" << BB_SPACE << "Basic Block: " << id_number << "\n\n";
 
+    if(statement_list.size() == 0){
+        report_internal_error("result from ast cannot be null");
+    }
 	list <Ast *>::iterator i;
 	for (i = statement_list.begin(); i != statement_list.end(); i++)
 	{
@@ -74,6 +83,7 @@ Eval_Result & Basic_Block::evaluate(Local_Environment & eval_env, ostream & file
 
 		result = &((*i)->evaluate(eval_env, file_buffer)); 
         if(result->get_result_enum() == go_to_result) return *result;
+        if(result->get_result_enum() == return_result) return *result;
 	}
 
 	return *result;

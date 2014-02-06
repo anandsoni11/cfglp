@@ -328,10 +328,17 @@ Eval_Result & Number_Ast<DATA_TYPE>::evaluate(Local_Environment & eval_env, ostr
 ///////////////////////////////////////////////////////////////////////////////
 
 Return_Ast::Return_Ast()
-{}
+{
+    node_data_type = return_data_type;
+}
 
 Return_Ast::~Return_Ast()
 {}
+
+Data_Type Return_Ast::get_data_type()
+{
+	return node_data_type;
+}
 
 void Return_Ast::print_ast(ostream & file_buffer)
 {
@@ -342,6 +349,7 @@ Eval_Result & Return_Ast::evaluate(Local_Environment & eval_env, ostream & file_
 {
 	file_buffer << AST_SPACE << "Return <NOTHING>\n";
 	Eval_Result & result = *new Eval_Result_Value_Int();
+    result.set_result_enum(return_result); //set the type to go_to_result enum
 	return result;
 }
 template class Number_Ast<int>;

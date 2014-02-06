@@ -134,6 +134,7 @@ class Return_Ast:public Ast
 public:
 	Return_Ast();
 	~Return_Ast();
+	Data_Type get_data_type();
 
 	void print_ast(ostream & file_buffer);
 
