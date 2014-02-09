@@ -122,9 +122,13 @@ if_statement:
 
 cast_expression:
     '(' DATA_TYPE ')' '(' expression_not_unary ')'
+	rel_expression
 |
-    expression
+    arith_expression
+|
+    cast_unary_expression
 ;
+
 
 expression_not_unary:
 	rel_expression
@@ -134,14 +138,6 @@ expression_not_unary:
     '(' DATA_TYPE ')' '(' unary_expression ')'
 |
     '(' DATA_TYPE ')' atomic_expression
-;
-
-expression:
-	rel_expression
-|
-    arith_expression
-|
-    cast_unary_expression
 ;
 
 cast_unary_expression:
@@ -167,27 +163,27 @@ atomic_expression: /* TODO string */
 ;
 
 rel_expression:
-	expression LT expression
+	cast_expression LT cast_expression
 |
-	expression GT expression
+	cast_expression GT cast_expression
 |
-	expression GE expression
+	cast_expression GE cast_expression
 |
-	expression LE expression
+	cast_expression LE cast_expression
 |
-	expression NE expression
+	cast_expression NE cast_expression
 |
-	expression EQ expression
+	cast_expression EQ cast_expression
 ;
 
 arith_expression:
-    expression '+' expression
+    cast_expression '+' cast_expression
 |
-    expression '-' expression
+    cast_expression '-' cast_expression
 |
-    expression '*' expression
+    cast_expression '*' cast_expression
 |
-    expression '/' expression
+    cast_expression '/' cast_expression
 ;
 
 
