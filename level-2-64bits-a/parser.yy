@@ -1,4 +1,3 @@
-
 /*********************************************************************************************
 
                                 cfglp : A CFG Language Processor
@@ -20,7 +19,6 @@
 
 
 ***********************************************************************************************/
-
 %scanner ../scanner.h
 %scanner-token-function d_scanner.lex()
 %filenames parser
@@ -68,12 +66,16 @@ declaration_statement_list:
 	declaration_statement_list declaration_statement
 ;
 
+DATA_TYPE:
+    INTEGER
+|
+    DOUBLE
+|
+    FLOAT
+;
+
 declaration_statement:
-	INTEGER NAME ';'
-|
-	FLOAT NAME ';'
-|
-	DOUBLE NAME ';'
+	DATA_TYPE NAME ';'
 ;
 
 
@@ -104,7 +106,7 @@ assignment_statement_list:
 ;
 
 assignment_statement:
-	variable ASSIGN_OP expression ';'
+	variable ASSIGN_OP cast_expression ';'
 ;
 
 goto_statement:
@@ -112,10 +114,26 @@ goto_statement:
 ;
 
 if_statement:
-    IF '(' rel_expression ')'
+    IF '(' cast_expression ')'
         goto_statement
     ELSE
         goto_statement
+;
+
+cast_expression:
+    '(' DATA_TYPE ')' '(' expression_not_unary ')'
+|
+    expression
+;
+
+expression_not_unary:
+	rel_expression
+|
+    arith_expression
+|
+    '(' DATA_TYPE ')' '(' unary_expression ')'
+|
+    '(' DATA_TYPE ')' atomic_expression
 ;
 
 expression:
@@ -123,13 +141,23 @@ expression:
 |
     arith_expression
 |
+    cast_unary_expression
+;
+
+cast_unary_expression:
+    '(' DATA_TYPE ')' '(' unary_expression ')'
+|
+    '(' DATA_TYPE ')' atomic_expression
+|
     unary_expression
+|
+    atomic_expression
 ;
 
 unary_expression:
-    '-' unary_expression
+    '-' atomic_expression
 |
-    atomic_expression
+    '-' unary_expression
 ;
 
 atomic_expression: /* TODO string */

@@ -31,7 +31,7 @@ for f in cfgFiles:
 
 print("\n*****Done with the checking cfg files EXCEPT infi loops!!***\n")
 
-exit(0)
+#exit(0)
 
 error_files=[]
 for f in files:
@@ -46,18 +46,8 @@ for f in error_files:
     os.system(command) 
     command = "./cfglp -tokens " + f + " 2> generated " 
     os.system(command)
-    command = "./cfglp64 -ast  " + f + " 2> expectedast " 
-    os.system(command) 
-    command = "./cfglp -ast " + f + " 2> generatedast " 
-    os.system(command)
-    command = "./cfglp64 -eval  " + f + " 2> expectedeval " 
-    os.system(command) 
-    command = "./cfglp -eval " + f + " 2> generatedeval " 
-    os.system(command)
     #print("diff starts here \n");
     os.system("diff -B expected generated")
-    os.system("diff -B expectedast generatedast")
-    os.system("diff -B expectedeval generatedeval")
 
 print("\n*****Done with the checking ecfg files!!***\n")
 

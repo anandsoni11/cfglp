@@ -134,7 +134,7 @@ goto	{
 				return Parser::NUM; 
 			}
 
-[[:alpha:]_][[:alpha:][:digit:]_]* {
+[[:alpha:]][[:alpha:][:digit:]_]* {
 					store_token_name("NAME");
 					return Parser::NAME; 
 				}
