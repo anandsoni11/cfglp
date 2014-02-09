@@ -35,6 +35,8 @@
 %right ASSIGN_OP /* 265 - 271 */
 %left  NE EQ
 %left  LT LE GT GE
+%left '+' '-'
+%left '*' '/'
 
 /********PRECEDENCE RULES*********/
 %start program
@@ -70,6 +72,8 @@ declaration_statement:
 	INTEGER NAME ';'
 |
 	FLOAT NAME ';'
+|
+	DOUBLE NAME ';'
 ;
 
 
