@@ -122,6 +122,7 @@ if_statement:
 
 cast_expression:
     '(' DATA_TYPE ')' '(' expression_not_unary ')'
+|
 	rel_expression
 |
     arith_expression
