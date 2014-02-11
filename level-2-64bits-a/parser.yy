@@ -130,10 +130,6 @@ expression_not_unary:
 	rel_expression
 |
     arith_expression
-|
-    '(' DATA_TYPE ')' '(' unary_expression ')'
-|
-    '(' DATA_TYPE ')' atomic_expression
 ;
 
 expression:
@@ -145,20 +141,15 @@ expression:
 ;
 
 cast_unary_expression:
-    '(' DATA_TYPE ')' '(' unary_expression ')'
+    '(' DATA_TYPE ')' '(' '-' atomic_expression ')'
 |
     '(' DATA_TYPE ')' atomic_expression
 |
-    unary_expression
+    '-' atomic_expression
 |
     atomic_expression
 ;
 
-unary_expression:
-    '-' atomic_expression
-|
-    '-' unary_expression
-;
 
 atomic_expression: /* TODO string */
 	variable

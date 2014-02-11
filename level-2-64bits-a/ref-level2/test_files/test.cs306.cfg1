@@ -1,0 +1,23 @@
+   float b;
+   float d;
+   float c;
+   float a;
+main()
+{
+
+<bb 2>:
+   b = a;
+   b = a + b;
+   b = (float)a;
+   b = (float)(-a);
+
+   b = (float)a + (float)c;
+   b = (float)(-a) + (float)c;
+
+   b = (float)(a + b);
+   b = (float)((float)a < b);
+   b = (float)((float)(-a) < (float)b);
+
+   return;
+
+}
