@@ -106,7 +106,7 @@ assignment_statement_list:
 ;
 
 assignment_statement:
-	variable ASSIGN_OP cast_expression ';'
+	variable ASSIGN_OP expression ';'
 ;
 
 goto_statement:
@@ -114,77 +114,58 @@ goto_statement:
 ;
 
 if_statement:
-    IF '(' cast_expression ')'
+    IF '('expression ')'
         goto_statement
     ELSE
         goto_statement
 ;
 
-cast_expression:
-    '(' DATA_TYPE ')' '(' expression_not_unary ')'
+expression:
+    '(' DATA_TYPE ')'  atomic_expression
 |
 	rel_expression
 |
     arith_expression
-|
-    cast_unary_expression
-;
-
-
-expression_not_unary:
-	rel_expression
-|
-    arith_expression
-|
-    '(' DATA_TYPE ')' '(' unary_expression ')'
-|
-    '(' DATA_TYPE ')' atomic_expression
-;
-
-cast_unary_expression:
-    '(' DATA_TYPE ')' '(' unary_expression ')'
-|
-    '(' DATA_TYPE ')' atomic_expression
 |
     unary_expression
-|
-    atomic_expression
 ;
 
 unary_expression:
-    '-' atomic_expression
+    atomic_expression
 |
-    '-' unary_expression
+    '-' atomic_expression
 ;
 
 atomic_expression: /* TODO string */
 	variable
 |
 	constant
+|
+	'(' expression ')'
 ;
 
 rel_expression:
-	cast_expression LT cast_expression
+	expression LT expression
 |
-	cast_expression GT cast_expression
+	expression GT expression
 |
-	cast_expression GE cast_expression
+	expression GE expression
 |
-	cast_expression LE cast_expression
+	expression LE expression
 |
-	cast_expression NE cast_expression
+	expression NE expression
 |
-	cast_expression EQ cast_expression
+	expression EQ expression
 ;
 
 arith_expression:
-    cast_expression '+' cast_expression
+    expression '+' expression
 |
-    cast_expression '-' cast_expression
+    expression '-' expression
 |
-    cast_expression '*' cast_expression
+    expression '*' expression
 |
-    cast_expression '/' cast_expression
+    expression '/' expression
 ;
 
 
