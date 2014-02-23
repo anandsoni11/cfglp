@@ -31,9 +31,17 @@
 
 using namespace std;
 
+typedef struct{
+    int int_v;
+    float float_v;
+    double double_v;
+} Value_Bundle;
+
 typedef enum
 {
 	int_result,
+	float_result,
+	double_result,
 	void_result,
     go_to_result, //go_to_ast returns Eval_Result_Value_Int with (result status enum to be this)
     return_result //go_to_ast returns Eval_Result_Value_Int with (result status enum to be this)
@@ -48,8 +56,8 @@ protected:
 	Result_Enum result_type;
 
 public:
-	virtual int get_value();
-	virtual void set_value(int value);
+	virtual Value_Bundle get_value();
+	virtual void set_value(Value_Bundle value);
 
 	virtual bool is_variable_defined();
 	virtual void set_variable_status(bool def);
@@ -61,8 +69,9 @@ public:
 class Eval_Result_Value:public Eval_Result
 {
 public:
-	virtual void set_value(int number) = 0;
-	virtual int get_value() = 0;
+	virtual void set_value(Value_Bundle number) = 0;
+	virtual Value_Bundle get_value() = 0;
+    virtual void print(ostream & file_buffer) = 0;
 
 	virtual bool is_variable_defined() = 0;
 	virtual void set_variable_status(bool def) = 0;
@@ -73,14 +82,53 @@ public:
 
 class Eval_Result_Value_Int:public Eval_Result_Value
 {
-	int value;
+    int value;
 	bool defined;
 public:
 	Eval_Result_Value_Int();
 	~Eval_Result_Value_Int();
 
-	void set_value(int number);
-	int get_value();
+	void set_value(Value_Bundle number);
+	Value_Bundle get_value();
+    void print(ostream & file_buffer);
+
+	void set_variable_status(bool def);
+	bool is_variable_defined();
+
+	void set_result_enum(Result_Enum res);
+	Result_Enum get_result_enum();
+};
+
+class Eval_Result_Value_Float:public Eval_Result_Value
+{
+	float value;
+	bool defined;
+public:
+	Eval_Result_Value_Float();
+	~Eval_Result_Value_Float();
+
+	void set_value(Value_Bundle number);
+	Value_Bundle get_value();
+    void print(ostream & file_buffer);
+
+	void set_variable_status(bool def);
+	bool is_variable_defined();
+
+	void set_result_enum(Result_Enum res);
+	Result_Enum get_result_enum();
+};
+
+class Eval_Result_Value_Double:public Eval_Result_Value
+{
+	double value;
+	bool defined;
+public:
+	Eval_Result_Value_Double();
+	~Eval_Result_Value_Double();
+
+	void set_value(Value_Bundle number);
+	Value_Bundle get_value();
+    void print(ostream & file_buffer);
 
 	void set_variable_status(bool def);
 	bool is_variable_defined();

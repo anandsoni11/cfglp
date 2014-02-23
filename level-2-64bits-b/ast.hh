@@ -33,6 +33,7 @@
 #define COND_NODE_SPACE "               "
 
 static map<int, string> rel_operators_map = {{0, "LT"}, {1, "GT"}, {2, "GE"}, {3, "LE"}, {4, "NE"}, {5, "EQ"}};
+static map<int, string> arith_operators_map = {{0, "UMINUS"}, {1, "PLUS"}, {2, "MINUS"}, {3, "MULT"}, {4, "DIV"}};
 
 using namespace std;
 
@@ -47,6 +48,7 @@ public:
 	~Ast();
 
 	virtual Data_Type get_data_type();
+	void set_data_type(Data_Type type); //Dont define this method in any of its children
 	virtual bool check_ast(int line);
 
 	virtual void print_ast(ostream & file_buffer) = 0;
@@ -86,9 +88,27 @@ public:
 
 	Data_Type get_data_type();
 	bool check_ast(int line);
-    int compare(int x, int y);
+    int compare(Value_Bundle x, Value_Bundle y, Result_Enum res_enum);
 
 	void print_ast(ostream & file_buffer);
+
+	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
+};
+
+class Arithmetic_Expr_Ast:public Ast
+{
+	Ast * lhs;
+    int arith_op;
+	Ast * rhs;
+
+public:
+	Arithmetic_Expr_Ast(Ast * temp_lhs, Ast * temp_rhs, int temp_op);
+	~Arithmetic_Expr_Ast();
+
+	Data_Type get_data_type();
+	bool check_ast(int line);
+	void print_ast(ostream & file_buffer);
+    Value_Bundle calculate(Value_Bundle x, Value_Bundle y, Result_Enum res_enum);
 
 	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
 };
@@ -113,7 +133,7 @@ public:
 };
 
 template <class T>
-class Number_Ast:public Ast
+class Number_Ast:public Ast //Method definition @ End of this file
 {
 	T constant;
 
@@ -169,4 +189,62 @@ public:
 
 	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
 };
+
+//////////////////////////NUMBER AST TEMPLATE DEFININTION/////////////////////////////////////////////////////
+
+template <class DATA_TYPE>
+Number_Ast<DATA_TYPE>::Number_Ast(DATA_TYPE number, Data_Type constant_data_type)
+{
+	constant = number;
+	node_data_type = constant_data_type;
+}
+
+template <class DATA_TYPE>
+Number_Ast<DATA_TYPE>::~Number_Ast()
+{}
+
+template <class DATA_TYPE>
+Data_Type Number_Ast<DATA_TYPE>::get_data_type()
+{
+	return node_data_type;
+}
+
+template <class DATA_TYPE>
+void Number_Ast<DATA_TYPE>::print_ast(ostream & file_buffer)
+{
+	file_buffer << "Num : " << constant;
+}
+
+template <class DATA_TYPE>
+Eval_Result & Number_Ast<DATA_TYPE>::evaluate(Local_Environment & eval_env, ostream & file_buffer)
+{
+	if (node_data_type == int_data_type)
+	{
+		Eval_Result & result = *new Eval_Result_Value_Int();
+        Value_Bundle bundle;
+        bundle.int_v = constant;
+		result.set_value(bundle);
+
+		return result;
+	}
+    else if (node_data_type == float_data_type)
+	{
+		Eval_Result & result = *new Eval_Result_Value_Float();
+        Value_Bundle bundle;
+        bundle.float_v = constant;
+		result.set_value(bundle);
+
+		return result;
+	}
+    else if (node_data_type == double_data_type)
+	{
+		Eval_Result & result = *new Eval_Result_Value_Double();
+        Value_Bundle bundle;
+        bundle.double_v = constant;
+		result.set_value(bundle);
+
+		return result;
+	}
+}
+
 #endif

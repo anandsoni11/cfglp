@@ -30,12 +30,12 @@ using namespace std;
 #include"error-display.hh"
 #include"user-options.hh"
 
-int Eval_Result::get_value()
+Value_Bundle Eval_Result::get_value()
 {
 	report_internal_error("Should not reach, Eval_Result : get_value");
 }
 
-void Eval_Result::set_value(int number)
+void Eval_Result::set_value(Value_Bundle bundle)
 {
 	report_internal_error("Should not reach, Eval_Result : set_value");
 }
@@ -62,15 +62,22 @@ Eval_Result_Value_Int::Eval_Result_Value_Int()
 Eval_Result_Value_Int::~Eval_Result_Value_Int()
 { }
 
-void Eval_Result_Value_Int::set_value(int number)
+void Eval_Result_Value_Int::set_value(Value_Bundle bundle)
 {
-	value = number;
+	value = bundle.int_v;
 	defined = true;
 }
 
-int Eval_Result_Value_Int::get_value()
+Value_Bundle Eval_Result_Value_Int::get_value()
 {
-	return value;
+    Value_Bundle bundle;
+    bundle.int_v = value;
+	return bundle;
+}
+
+void Eval_Result_Value_Int::print(ostream & file_buffer)
+{
+    file_buffer << value;
 }
 
 void Eval_Result_Value_Int::set_variable_status(bool def)
@@ -89,6 +96,104 @@ void Eval_Result_Value_Int::set_result_enum(Result_Enum res)
 }
 
 Result_Enum Eval_Result_Value_Int::get_result_enum()
+{
+	return result_type;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Eval_Result_Value_Float::Eval_Result_Value_Float()
+{
+	value = 0;
+	defined = false;
+	result_type = float_result;
+}
+
+Eval_Result_Value_Float::~Eval_Result_Value_Float()
+{ }
+
+void Eval_Result_Value_Float::set_value(Value_Bundle bundle)
+{
+	value = bundle.float_v;
+	defined = true;
+}
+
+Value_Bundle Eval_Result_Value_Float::get_value()
+{
+    Value_Bundle bundle;
+    bundle.float_v = value;
+	return bundle;
+}
+void Eval_Result_Value_Float::print(ostream & file_buffer)
+{
+    file_buffer << value;
+}
+
+void Eval_Result_Value_Float::set_variable_status(bool def)
+{
+	defined = def;
+}
+
+bool Eval_Result_Value_Float::is_variable_defined()
+{
+	return defined;
+}
+
+void Eval_Result_Value_Float::set_result_enum(Result_Enum res)
+{
+	result_type = res;
+}
+
+Result_Enum Eval_Result_Value_Float::get_result_enum()
+{
+	return result_type;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+Eval_Result_Value_Double::Eval_Result_Value_Double()
+{
+	value = 0;
+	defined = false;
+	result_type = double_result;
+}
+
+Eval_Result_Value_Double::~Eval_Result_Value_Double()
+{ }
+
+void Eval_Result_Value_Double::set_value(Value_Bundle bundle)
+{
+	value = bundle.double_v;
+	defined = true;
+}
+
+Value_Bundle Eval_Result_Value_Double::get_value()
+{
+    Value_Bundle bundle;
+    bundle.double_v = value;
+	return bundle;
+}
+void Eval_Result_Value_Double::print(ostream & file_buffer)
+{
+    file_buffer << value;
+}
+
+void Eval_Result_Value_Double::set_variable_status(bool def)
+{
+	defined = def;
+}
+
+bool Eval_Result_Value_Double::is_variable_defined()
+{
+	return defined;
+}
+
+void Eval_Result_Value_Double::set_result_enum(Result_Enum res)
+{
+	result_type = res;
+}
+
+Result_Enum Eval_Result_Value_Double::get_result_enum()
 {
 	return result_type;
 }
@@ -112,8 +217,11 @@ void Local_Environment::print(ostream & file_buffer)
 			if (vi->is_variable_defined() == false)
 				file_buffer << VAR_SPACE << (*i).first << " : undefined" << "\n";
 		
-			else
-				file_buffer << VAR_SPACE << (*i).first << " : " << vi->get_value() << "\n";
+			else{
+				file_buffer << VAR_SPACE << (*i).first << " : " ;
+                vi->print(file_buffer) ;
+                cout << "\n";
+            }
 		}
 	}
 }

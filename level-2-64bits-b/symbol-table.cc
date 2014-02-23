@@ -99,14 +99,41 @@ void Symbol_Table::create(Local_Environment & local_global_variables_table)
 	for (i = variable_table.begin(); i != variable_table.end(); i++)
 	{
 		string name = (*i)->get_variable_name();
-		Eval_Result_Value_Int * j = new Eval_Result_Value_Int();
-		if (scope == global)
-		{
-			j->set_variable_status(true);
-			j->set_value(0);
-		}
+        Data_Type dtype = (*i)->get_data_type();
 
-		local_global_variables_table.put_variable_value(*j, name);
+        if(dtype == int_data_type){
+            Eval_Result_Value_Int * j = new Eval_Result_Value_Int();
+            if(scope == global){
+                j->set_variable_status(true);
+
+                Value_Bundle bundle;
+                bundle.int_v = 0;
+                j->set_value(bundle);
+            }
+            local_global_variables_table.put_variable_value(*j, name);
+        }
+        else if(dtype == float_data_type){
+            Eval_Result_Value_Float * j = new Eval_Result_Value_Float();
+            if(scope == global){
+                j->set_variable_status(true);
+
+                Value_Bundle bundle;
+                bundle.float_v = 0;
+                j->set_value(bundle);
+            }
+            local_global_variables_table.put_variable_value(*j, name);
+        }
+        else if(dtype == double_data_type){
+            Eval_Result_Value_Double * j = new Eval_Result_Value_Double();
+            if(scope == global){
+                j->set_variable_status(true);
+
+                Value_Bundle bundle;
+                bundle.double_v = 0;
+                j->set_value(bundle);
+            }
+            local_global_variables_table.put_variable_value(*j, name);
+        }
 	}
 }
 

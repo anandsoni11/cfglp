@@ -68,36 +68,53 @@ goto	{
 
 ("<bb "([0-9]+)">") {
             store_token_name("BASIC BLOCK");
+            ParserBase::STYPE__ * val = getSval();
+            std::string bb = matched();
+            std::string id = bb.substr(4, bb.length()-5);
+            //std::cout <<"Basic Block #'" << id <<"'"<<endl;
+            val->integer_value = atoi(id.c_str());
             return Parser::BB_ID;
         }
 
 "<"     {
 			store_token_name("LT");
+            ParserBase::STYPE__ * val = getSval();
+            val->integer_value = 0;
 			return Parser::LT; 
         }
 
 ">"     {
 			store_token_name("GT");
+            ParserBase::STYPE__ * val = getSval();
+            val->integer_value = 1;
 			return Parser::GT; 
         }
 
 ">="    {
 			store_token_name("GE");
+            ParserBase::STYPE__ * val = getSval();
+            val->integer_value = 2;
 			return Parser::GE; 
         }
 
 "<="    {
 			store_token_name("LE");
+            ParserBase::STYPE__ * val = getSval();
+            val->integer_value = 3;
 			return Parser::LE; 
         }
 
 "!="    {
 			store_token_name("NE");
+            ParserBase::STYPE__ * val = getSval();
+            val->integer_value = 4;
 			return Parser::NE; 
         }
 
 "=="    {
 			store_token_name("EQ");
+            ParserBase::STYPE__ * val = getSval();
+            val->integer_value = 5;
 			return Parser::EQ; 
         }
 
@@ -126,16 +143,22 @@ goto	{
 
 [-]?[[:digit:]]+[.][0-9]+ 	{ 
 				store_token_name("FNUM");
+				ParserBase::STYPE__ * val = getSval();
+				val->float_value = atof(matched().c_str());
 				return Parser::FNUM; 
 			}
 
 [-]?[[:digit:]]+ 	{ 
 				store_token_name("NUM");
+				ParserBase::STYPE__ * val = getSval();
+				val->integer_value = atoi(matched().c_str());
 				return Parser::NUM; 
 			}
 
 [[:alpha:]][[:alpha:][:digit:]_]* {
 					store_token_name("NAME");
+					ParserBase::STYPE__ * val = getSval();
+					val->string_value = new std::string(matched());
 					return Parser::NAME; 
 				}
 

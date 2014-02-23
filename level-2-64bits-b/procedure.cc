@@ -151,7 +151,8 @@ Eval_Result & Procedure::evaluate(ostream & file_buffer)
 	{
 		result = &(current_bb->evaluate(eval_env, file_buffer));
         if(result->get_result_enum() == go_to_result){ //if this is the result of go-to stmt , update the current_bb accordingly
-            int target = result->get_value();
+            Value_Bundle result_value = result->get_value();
+            int target = result_value.int_v;
             current_bb = get_target_bb(target);
             if(current_bb == NULL) {
                 char c_error[100];
@@ -170,7 +171,7 @@ Eval_Result & Procedure::evaluate(ostream & file_buffer)
 
     if(result->get_result_enum() != return_result){
         report_internal_error("Atleast one of true, false, direct successors should be set");
-    } 
+    }
 
 	file_buffer << "\n\n";
 	file_buffer << LOC_VAR_SPACE << "Local Variables (after evaluating):\n";
