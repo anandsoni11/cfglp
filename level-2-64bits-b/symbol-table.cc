@@ -148,6 +148,10 @@ Symbol_Table_Entry::Symbol_Table_Entry(string & name, Data_Type new_data_type)
 	variable_data_type = new_data_type;
 }
 
+void Symbol_Table_Entry:: set_data_type(Data_Type type) {
+    variable_data_type = type;
+}
+
 Symbol_Table_Entry::~Symbol_Table_Entry()
 {}
 

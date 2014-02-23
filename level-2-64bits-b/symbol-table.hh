@@ -78,6 +78,7 @@ public:
 	~Symbol_Table_Entry();
 
 	Data_Type get_data_type();
+    void set_data_type(Data_Type type);
 	string get_variable_name();
 };
 

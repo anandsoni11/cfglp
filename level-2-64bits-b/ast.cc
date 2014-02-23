@@ -51,7 +51,7 @@ Data_Type Ast::get_data_type()
 
 void Ast::set_data_type(Data_Type type)
 {
-    node_data_type = type;
+    report_internal_error("Should not reach, Ast : set_data_type");
 }
 
 void Ast::print_value(Local_Environment & eval_env, ostream & file_buffer)
@@ -83,6 +83,11 @@ Assignment_Ast::~Assignment_Ast()
 	delete rhs;
 }
 
+void Assignment_Ast::set_data_type(Data_Type type)
+{
+    node_data_type = type;
+}
+
 Data_Type Assignment_Ast::get_data_type()
 {
 	return node_data_type;
@@ -90,7 +95,6 @@ Data_Type Assignment_Ast::get_data_type()
 
 bool Assignment_Ast::check_ast(int line)
 {
-    //std::cout << lhs->get_data_type() << " " << rhs->get_data_type() <<endl;
 	if (lhs->get_data_type() == rhs->get_data_type())
 	{
 		node_data_type = lhs->get_data_type();
@@ -151,6 +155,10 @@ Data_Type Relational_Expr_Ast::get_data_type()
 	return node_data_type;
 }
 
+void Relational_Expr_Ast::set_data_type(Data_Type type)
+{
+    node_data_type = type;
+}
 bool Relational_Expr_Ast::check_ast(int line)
 {
 	if (lhs->get_data_type() == rhs->get_data_type())
@@ -263,6 +271,10 @@ Data_Type Arithmetic_Expr_Ast::get_data_type()
 	return node_data_type;
 }
 
+void Arithmetic_Expr_Ast::set_data_type(Data_Type type)
+{
+    node_data_type = type;
+}
 bool Arithmetic_Expr_Ast::check_ast(int line)
 {
 	if (lhs==NULL || lhs->get_data_type() == rhs->get_data_type())
@@ -386,6 +398,11 @@ Name_Ast::~Name_Ast()
 Data_Type Name_Ast::get_data_type()
 {
 	return variable_symbol_entry.get_data_type();
+}
+
+void Name_Ast::set_data_type(Data_Type type)
+{
+    variable_symbol_entry.set_data_type(type);
 }
 
 void Name_Ast::print_ast(ostream & file_buffer)
