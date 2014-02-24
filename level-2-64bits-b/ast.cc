@@ -95,9 +95,9 @@ Data_Type Assignment_Ast::get_data_type()
 
 bool Assignment_Ast::check_ast(int line)
 {
-	if (lhs->get_data_type() == rhs->get_data_type())
+	if (is_compatible(lhs->get_data_type(), rhs->get_data_type()))
 	{
-		node_data_type = lhs->get_data_type();
+		node_data_type = rhs->get_data_type();
 		return true;
 	}
 
@@ -131,7 +131,7 @@ Eval_Result & Assignment_Ast::evaluate(Local_Environment & eval_env, ostream & f
 	print_ast(file_buffer);
 
 	lhs->print_value(eval_env, file_buffer);
-    cout <<endl;
+    file_buffer <<endl;
 
 	return result;
 }
@@ -161,7 +161,7 @@ void Relational_Expr_Ast::set_data_type(Data_Type type)
 }
 bool Relational_Expr_Ast::check_ast(int line)
 {
-	if (lhs->get_data_type() == rhs->get_data_type())
+	if (is_compatible(lhs->get_data_type(), rhs->get_data_type()))
 	{
 		return true;
 	}
@@ -183,7 +183,7 @@ void Relational_Expr_Ast::print_ast(ostream & file_buffer)
 }
 
 int Relational_Expr_Ast::compare(Value_Bundle x, Value_Bundle y, Result_Enum res_enum){
-    //cout << "operator is " << rel_op << "X is " << x << " Y is "<<y <<endl;
+    //file_buffer << "operator is " << rel_op << "X is " << x << " Y is "<<y <<endl;
     if(res_enum == int_result){
         if(rel_op == 0) return (x.int_v <  y.int_v);
         if(rel_op == 1) return (x.int_v >  y.int_v);
@@ -192,21 +192,13 @@ int Relational_Expr_Ast::compare(Value_Bundle x, Value_Bundle y, Result_Enum res
         if(rel_op == 4) return (x.int_v != y.int_v);
         if(rel_op == 5) return (x.int_v == y.int_v);
     }
-    else if(res_enum == float_result){
+    else if(res_enum == float_result || res_enum == double_result){
         if(rel_op == 0) return (x.float_v <  y.float_v);
         if(rel_op == 1) return (x.float_v >  y.float_v);
         if(rel_op == 2) return (x.float_v >= y.float_v);
         if(rel_op == 3) return (x.float_v <= y.float_v);
         if(rel_op == 4) return (x.float_v != y.float_v);
         if(rel_op == 5) return (x.float_v == y.float_v);
-    }
-    else if(res_enum == double_result){
-        if(rel_op == 0) return (x.double_v <  y.double_v);
-        if(rel_op == 1) return (x.double_v >  y.double_v);
-        if(rel_op == 2) return (x.double_v >= y.double_v);
-        if(rel_op == 3) return (x.double_v <= y.double_v);
-        if(rel_op == 4) return (x.double_v != y.double_v);
-        if(rel_op == 5) return (x.double_v == y.double_v);
     }
 }
 
@@ -224,7 +216,7 @@ Eval_Result & Relational_Expr_Ast::evaluate(Local_Environment & eval_env, ostrea
 
 
     int compare_result = this->compare(lhs_result.get_value(), rhs_result.get_value(), lhs_result.get_result_enum());
-    //cout << "Compare result is "<< compare_result <<endl;
+    //file_buffer << "Compare result is "<< compare_result <<endl;
 	// Print the result
     
     // identify the return type for this Ast(maybe typecasted) and return Eval_Result accordingly of correct type
@@ -245,7 +237,7 @@ Eval_Result & Relational_Expr_Ast::evaluate(Local_Environment & eval_env, ostrea
     else if(node_data_type == double_data_type){
         Eval_Result & result = *new Eval_Result_Value_Double();
         Value_Bundle bundle;
-        bundle.double_v = (double) compare_result;
+        bundle.float_v = (float) compare_result;
         result.set_value(bundle);
 	    return result;
     }
@@ -277,12 +269,11 @@ void Arithmetic_Expr_Ast::set_data_type(Data_Type type)
 }
 bool Arithmetic_Expr_Ast::check_ast(int line)
 {
-	if (lhs==NULL || lhs->get_data_type() == rhs->get_data_type())
+	if (lhs==NULL || is_compatible(lhs->get_data_type(), rhs->get_data_type()))
 	{
         node_data_type = rhs->get_data_type();
 		return true;
 	}
-
 	report_error("Arithmetic statement data type not compatible", line);
 }
 
@@ -290,13 +281,20 @@ void Arithmetic_Expr_Ast::print_ast(ostream & file_buffer)
 {
 	file_buffer <<"\n"<<COND_SPACE << "Arith: " << arith_operators_map[arith_op] <<endl;
 
-	file_buffer << COND_NODE_SPACE"LHS (";
-	lhs->print_ast(file_buffer);
-	file_buffer << ")\n";
+    if(arith_op == 0){
+        file_buffer << COND_NODE_SPACE"LHS (";
+        rhs->print_ast(file_buffer);
+        file_buffer << ")";
+    }
+    else{
+        file_buffer << COND_NODE_SPACE"LHS (";
+        lhs->print_ast(file_buffer);
+        file_buffer << ")\n";
 
-	file_buffer << COND_NODE_SPACE << "RHS (";
-	rhs->print_ast(file_buffer);
-	file_buffer << ")";
+        file_buffer << COND_NODE_SPACE << "RHS (";
+        rhs->print_ast(file_buffer);
+        file_buffer << ")";
+    }
 }
 
 Value_Bundle Arithmetic_Expr_Ast::calculate(Value_Bundle x, Value_Bundle y, Result_Enum res_enum){
@@ -308,19 +306,12 @@ Value_Bundle Arithmetic_Expr_Ast::calculate(Value_Bundle x, Value_Bundle y, Resu
         else if(arith_op == 3)   bundle.int_v =  x.int_v * y.int_v;
         else if(arith_op == 4)   bundle.int_v =  x.int_v / y.int_v;
     }
-    else if(res_enum == float_result){
+    else if(res_enum == float_result || res_enum == double_result){
         if     (arith_op == 0)   bundle.float_v = -(y.float_v);
         else if(arith_op == 1)   bundle.float_v =  x.float_v + y.float_v;
         else if(arith_op == 2)   bundle.float_v =  x.float_v - y.float_v;
         else if(arith_op == 3)   bundle.float_v =  x.float_v * y.float_v;
         else if(arith_op == 4)   bundle.float_v =  x.float_v / y.float_v;
-    }
-    else if(res_enum == double_result){
-        if     (arith_op == 0)   bundle.double_v = -(y.double_v);
-        else if(arith_op == 1)   bundle.double_v =  x.double_v + y.double_v;
-        else if(arith_op == 2)   bundle.double_v =  x.double_v - y.double_v;
-        else if(arith_op == 3)   bundle.double_v =  x.double_v * y.double_v;
-        else if(arith_op == 4)   bundle.double_v =  x.double_v / y.double_v;
     }
     return bundle;
 }
@@ -358,7 +349,7 @@ Eval_Result & Arithmetic_Expr_Ast::evaluate(Local_Environment & eval_env, ostrea
 
         if     (operand_result_enum == int_result)      bundle.int_v = (int) calculated_result.int_v;
         else if(operand_result_enum == float_result)    bundle.int_v = (int) calculated_result.float_v;
-        else if(operand_result_enum == double_result)   bundle.int_v = (int) calculated_result.double_v;
+        else if(operand_result_enum == double_result)   bundle.int_v = (int) calculated_result.float_v;
         result.set_value(bundle);
 	    return result;
     }
@@ -368,17 +359,17 @@ Eval_Result & Arithmetic_Expr_Ast::evaluate(Local_Environment & eval_env, ostrea
 
         if     (operand_result_enum == int_result)      bundle.float_v = (float) calculated_result.int_v;
         else if(operand_result_enum == float_result)    bundle.float_v = (float) calculated_result.float_v;
-        else if(operand_result_enum == double_result)   bundle.float_v = (float) calculated_result.double_v;
+        else if(operand_result_enum == double_result)   bundle.float_v = (float) calculated_result.float_v;
         result.set_value(bundle);
 	    return result;
     }
-    else if(node_data_type == float_data_type){
-        Eval_Result & result = *new Eval_Result_Value_Float();
+    else if(node_data_type == double_data_type){
+        Eval_Result & result = *new Eval_Result_Value_Double();
         Value_Bundle bundle;
 
-        if     (operand_result_enum == int_result)      bundle.double_v = (double) calculated_result.int_v;
-        else if(operand_result_enum == float_result)    bundle.double_v = (double) calculated_result.float_v;
-        else if(operand_result_enum == double_result)   bundle.double_v = (double) calculated_result.double_v;
+        if     (operand_result_enum == int_result)      bundle.float_v = (double) calculated_result.int_v;
+        else if(operand_result_enum == float_result)    bundle.float_v = (double) calculated_result.float_v;
+        else if(operand_result_enum == double_result)   bundle.float_v = (double) calculated_result.float_v;
         result.set_value(bundle);
 	    return result;
     }
@@ -422,7 +413,10 @@ void Name_Ast::print_value(Local_Environment & eval_env, ostream & file_buffer)
 
 	else if (eval_env.is_variable_defined(variable_name) && loc_var_val != NULL)
 	{
-		if (loc_var_val->get_result_enum() == int_result){
+		if (loc_var_val->get_result_enum() == int_result || 
+            loc_var_val->get_result_enum() == float_result ||
+            loc_var_val->get_result_enum() == double_result)  {
+
             loc_var_val->print(file_buffer);
 			file_buffer << "\n";
         }
@@ -432,8 +426,10 @@ void Name_Ast::print_value(Local_Environment & eval_env, ostream & file_buffer)
 
 	else
 	{
-		if (glob_var_val->get_result_enum() == int_result)
-		{
+		if (glob_var_val->get_result_enum() == int_result || 
+            glob_var_val->get_result_enum() == float_result ||
+            glob_var_val->get_result_enum() == double_result)  {
+
 			if (glob_var_val == NULL)
 				file_buffer << "0\n";
 			else{
@@ -489,7 +485,39 @@ void Name_Ast::set_value_of_evaluation(Local_Environment & eval_env, Eval_Result
 
 Eval_Result & Name_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
 {
-	return get_value_of_evaluation(eval_env);
+    Eval_Result &result = get_value_of_evaluation(eval_env);
+
+    //cout << "here out" << endl;
+    if(get_data_type() == int_data_type){
+        Eval_Result & new_result = *new Eval_Result_Value_Int();
+        Value_Bundle bundle;
+
+        if     (result.get_result_enum() == int_result)      bundle.int_v = (int) result.get_value().int_v;
+        else if(result.get_result_enum() == float_result)    bundle.int_v = (int) result.get_value().float_v;
+        else if(result.get_result_enum() == double_result)   bundle.int_v = (int) result.get_value().float_v;
+        new_result.set_value(bundle);
+	    return new_result;
+    }
+    else if(get_data_type() == float_data_type){
+        Eval_Result & new_result = *new Eval_Result_Value_Float();
+        Value_Bundle bundle;
+
+        if     (result.get_result_enum() == int_result)      bundle.float_v = (float) result.get_value().int_v;
+        else if(result.get_result_enum() == float_result)    bundle.float_v = (float) result.get_value().float_v;
+        else if(result.get_result_enum() == double_result)   bundle.float_v = (float) result.get_value().float_v;
+        new_result.set_value(bundle);
+	    return new_result;
+    }
+    else if(get_data_type() == double_data_type){
+        Eval_Result & new_result = *new Eval_Result_Value_Double();
+        Value_Bundle bundle;
+
+        if     (result.get_result_enum() == int_result)      bundle.float_v = (double) result.get_value().int_v;
+        else if(result.get_result_enum() == float_result)    bundle.float_v = (double) result.get_value().float_v;
+        else if(result.get_result_enum() == double_result)   bundle.float_v = (double) result.get_value().float_v;
+        new_result.set_value(bundle);
+	    return new_result;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -530,6 +558,10 @@ Goto_Ast::Goto_Ast(int succ)
 Goto_Ast::~Goto_Ast()
 {}
 
+Data_Type Goto_Ast::get_data_type()
+{
+	return node_data_type;
+}
 void Goto_Ast::print_ast(ostream & file_buffer)
 {
 	file_buffer << AST_SPACE << "Goto statement:\n";
@@ -570,9 +602,9 @@ void If_Ast::print_ast(ostream & file_buffer)
 {
 	file_buffer << AST_SPACE << "If_Else statement:";
     condition->print_ast(file_buffer);
-    cout <<endl; //this is required because rel_expr->print() doesn't end in newline
-    cout << AST_NODE_SPACE << "True Successor: "<< ((Goto_Ast*)goto_true)->get_successor() <<endl;
-    cout << AST_NODE_SPACE << "False Successor: "<< ((Goto_Ast*)goto_false)->get_successor() <<endl;
+    file_buffer <<endl; //this is required because rel_expr->print() doesn't end in newline
+    file_buffer << AST_NODE_SPACE << "True Successor: "<< ((Goto_Ast*)goto_true)->get_successor() <<endl;
+    file_buffer << AST_NODE_SPACE << "False Successor: "<< ((Goto_Ast*)goto_false)->get_successor() <<endl;
 }
 
 Eval_Result & If_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
@@ -587,11 +619,11 @@ Eval_Result & If_Ast::evaluate(Local_Environment & eval_env, ostream & file_buff
     Value_Bundle cond_result_value = condition_result.get_value();
     if(cond_result_value.int_v == 1){ //true statment
         successor =((Goto_Ast*)goto_true)->get_successor();
-        cout << AST_SPACE << "Condition True : Goto (BB "<< successor << ")"<<endl;
+        file_buffer << AST_SPACE << "Condition True : Goto (BB "<< successor << ")"<<endl;
     }
     else{ //false statment
         successor =((Goto_Ast*)goto_false)->get_successor();
-        cout << AST_SPACE << "Condition False : Goto (BB "<< successor << ")"<<endl;
+        file_buffer << AST_SPACE << "Condition False : Goto (BB "<< successor << ")"<<endl;
     }
     
     result.set_result_enum(go_to_result); //set the type to go_to_result enum
@@ -601,5 +633,13 @@ Eval_Result & If_Ast::evaluate(Local_Environment & eval_env, ostream & file_buff
     result.set_value(bundle);
 
     return result;
+}
+///////////////// UTILS DEFINITION /////////////////////////
+//
+bool is_compatible(Data_Type d1, Data_Type d2){
+    if(d1 == d2) return true;
+    if( (d1 == double_data_type && d2 == float_data_type) || (d2 == double_data_type && d1 == float_data_type))
+        return true;
+    return false;
 }
 

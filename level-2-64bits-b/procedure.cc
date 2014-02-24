@@ -89,7 +89,7 @@ void Procedure::print_ast(ostream & file_buffer)
 		(*i)->print_bb(file_buffer);
 
     i--;
-    (*i)->check_if_return();
+    //CHECK** (*i)->check_if_return();
 }
 	
 Basic_Block & Procedure::get_start_basic_block()

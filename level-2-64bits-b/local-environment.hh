@@ -34,7 +34,6 @@ using namespace std;
 typedef struct{
     int int_v;
     float float_v;
-    double double_v;
 } Value_Bundle;
 
 typedef enum

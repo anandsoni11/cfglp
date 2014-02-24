@@ -26,6 +26,7 @@
 
 #include <string>
 #include <map>
+#include <iomanip>
 
 #define AST_SPACE "         "
 #define AST_NODE_SPACE "            "
@@ -173,6 +174,7 @@ class Goto_Ast:public Ast
 public:
 	Goto_Ast(int succ);
 	~Goto_Ast();
+	Data_Type get_data_type();
 
 	void print_ast(ostream & file_buffer);
     int get_successor();
@@ -195,6 +197,8 @@ public:
 	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
 };
 
+/////////////////////////////  UTILS FUNCTIONS ///////////////////////////////////////////////////////////
+bool is_compatible(Data_Type d1, Data_Type d2);
 //////////////////////////NUMBER AST TEMPLATE DEFININTION/////////////////////////////////////////////////////
 
 template <class DATA_TYPE>
@@ -223,7 +227,7 @@ Data_Type Number_Ast<DATA_TYPE>::get_data_type()
 template <class DATA_TYPE>
 void Number_Ast<DATA_TYPE>::print_ast(ostream & file_buffer)
 {
-	file_buffer << "Num : " << constant;
+	file_buffer << "Num : " << fixed << setprecision(2) << constant;
 }
 
 template <class DATA_TYPE>
@@ -251,7 +255,7 @@ Eval_Result & Number_Ast<DATA_TYPE>::evaluate(Local_Environment & eval_env, ostr
 	{
 		Eval_Result & result = *new Eval_Result_Value_Double();
         Value_Bundle bundle;
-        bundle.double_v = constant;
+        bundle.float_v = constant;
 		result.set_value(bundle);
 
 		return result;

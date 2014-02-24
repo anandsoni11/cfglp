@@ -129,7 +129,7 @@ void Symbol_Table::create(Local_Environment & local_global_variables_table)
                 j->set_variable_status(true);
 
                 Value_Bundle bundle;
-                bundle.double_v = 0;
+                bundle.float_v = 0;
                 j->set_value(bundle);
             }
             local_global_variables_table.put_variable_value(*j, name);

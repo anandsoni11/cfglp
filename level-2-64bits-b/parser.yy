@@ -419,42 +419,42 @@ atomic_expression: /* TODO string */
 ;
 
 rel_expression:
-	rel_expression LT rel_expression
+	expression LT expression
     {
         $$ = new Relational_Expr_Ast($1, $3, $2, int_data_type);
 		int line = get_line_number();
 		$$->check_ast(line);
     }
 |
-	rel_expression GT rel_expression
+	expression GT expression
     {
         $$ = new Relational_Expr_Ast($1, $3, $2, int_data_type);
 		int line = get_line_number();
 		$$->check_ast(line);
     }
 |
-	rel_expression GE rel_expression
+	expression GE expression
     {
         $$ = new Relational_Expr_Ast($1, $3, $2, int_data_type);
 		int line = get_line_number();
 		$$->check_ast(line);
     }
 |
-	rel_expression LE rel_expression
+	expression LE expression
     {
         $$ = new Relational_Expr_Ast($1, $3, $2, int_data_type);
 		int line = get_line_number();
 		$$->check_ast(line);
     }
 |
-	rel_expression NE rel_expression
+	expression NE expression
     {
         $$ = new Relational_Expr_Ast($1, $3, $2, int_data_type);
 		int line = get_line_number();
 		$$->check_ast(line);
     }
 |
-	rel_expression EQ rel_expression
+	expression EQ expression
     {
         $$ = new Relational_Expr_Ast($1, $3, $2, int_data_type);
 		int line = get_line_number();

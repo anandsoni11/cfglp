@@ -23,6 +23,7 @@
 
 #include<string>
 #include<fstream>
+#include <iomanip>
 
 using namespace std;
 
@@ -126,7 +127,7 @@ Value_Bundle Eval_Result_Value_Float::get_value()
 }
 void Eval_Result_Value_Float::print(ostream & file_buffer)
 {
-    file_buffer << value;
+    file_buffer << fixed << setprecision(2) << value ;
 }
 
 void Eval_Result_Value_Float::set_variable_status(bool def)
@@ -163,19 +164,19 @@ Eval_Result_Value_Double::~Eval_Result_Value_Double()
 
 void Eval_Result_Value_Double::set_value(Value_Bundle bundle)
 {
-	value = bundle.double_v;
+	value = bundle.float_v;
 	defined = true;
 }
 
 Value_Bundle Eval_Result_Value_Double::get_value()
 {
     Value_Bundle bundle;
-    bundle.double_v = value;
+    bundle.float_v = value;
 	return bundle;
 }
 void Eval_Result_Value_Double::print(ostream & file_buffer)
 {
-    file_buffer << value;
+    file_buffer << fixed << setprecision(2) << value ;
 }
 
 void Eval_Result_Value_Double::set_variable_status(bool def)
@@ -220,7 +221,7 @@ void Local_Environment::print(ostream & file_buffer)
 			else{
 				file_buffer << VAR_SPACE << (*i).first << " : " ;
                 vi->print(file_buffer) ;
-                cout << "\n";
+                file_buffer << "\n";
             }
 		}
 	}
