@@ -1,7 +1,12 @@
-int a;
 main()
 {
-    int b,c,d;
-    b = 3;
-    if(a) b =c;
+	int a = 3;
+	int b = 5;
+
+	fn();
+}
+
+fn()
+{
+	int c = 4;
 }
