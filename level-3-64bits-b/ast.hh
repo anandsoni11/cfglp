@@ -156,9 +156,10 @@ public:
 
 class Return_Ast:public Ast
 {
+    Ast * expression;
 
 public:
-	Return_Ast();
+	Return_Ast(Ast * expr);
 	~Return_Ast();
 	Data_Type get_data_type();
 

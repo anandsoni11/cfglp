@@ -80,6 +80,11 @@ Symbol_Table_Entry & Procedure::get_symbol_table_entry(string variable_name)
 	return local_symbol_table.get_symbol_table_entry(variable_name);
 }
 
+Symbol_Table * Procedure::get_symbol_table()
+{
+    return &local_symbol_table;
+}
+
 void Procedure::print_ast(ostream & file_buffer)
 {
 	file_buffer << PROC_SPACE << "Procedure: main" << "\n\n";

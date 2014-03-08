@@ -522,8 +522,9 @@ Eval_Result & Name_Ast::evaluate(Local_Environment & eval_env, ostream & file_bu
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Return_Ast::Return_Ast()
+Return_Ast::Return_Ast(Ast * expr)
 {
+    expression = expr;
     node_data_type = return_data_type;
 }
 
