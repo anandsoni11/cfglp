@@ -1,4 +1,0 @@
-cfglp error: File: test_files/t4.ecfg, Line: 23: Actual and formal parameter count do not match
-cfglp error: File: test_files/t4.ecfg, Line: 23: Actual and formal parameters donot match
-cfglp error: File: test_files/t4.ecfg, Line: 15: Formal parameter list of the procedure and its prototype should match
-cfglp error: File: test_files/t4.ecfg, Line: 26: Procedure and its prototype should match
