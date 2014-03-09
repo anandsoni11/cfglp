@@ -35,6 +35,7 @@ using namespace std;
 class Program;
 
 extern Program program_object;
+extern Symbol_Table *global_symbol_table; //used during parsing only
 
 class Program
 {

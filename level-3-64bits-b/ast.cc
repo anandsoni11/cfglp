@@ -398,7 +398,12 @@ void Function_Call_Ast::set_data_type(Data_Type type)
 }
 bool Function_Call_Ast::check_ast(int line)
 {
-    node_data_type = proc->get_return_type();
+    if(proc == NULL){
+        node_data_type = int_data_type; //CHECK
+    }
+    else{
+        node_data_type = proc->get_return_type();
+    }
 }
 
 void Function_Call_Ast::print_ast(ostream & file_buffer)

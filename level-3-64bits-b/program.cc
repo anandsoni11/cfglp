@@ -37,6 +37,7 @@ using namespace std;
 #include"program.hh"
 
 Program program_object;
+Symbol_Table *global_symbol_table = new Symbol_Table(); //used during parsing only
 Local_Environment interpreter_global_table;
 
 Program::Program()

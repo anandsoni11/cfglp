@@ -88,25 +88,30 @@
 
 program:
 	declaration_statement_list 
-    function_definition_list
     {
-		program_object.set_global_table(*$1);
+        program_object.set_global_table(*global_symbol_table);
     }
+    function_definition_list
 |
 	declaration_statement_list 
     function_declaration_list
-    function_definition_list
     {
-		program_object.set_global_table(*$1);
+        program_object.set_global_table(*global_symbol_table);
     }
+    function_definition_list
 |
     function_declaration_list
+    {
+        program_object.set_global_table(*global_symbol_table);
+    }
     function_definition_list
 |
-    function_definition_list
     {
+        program_object.set_global_table(*global_symbol_table);
     }
+    function_definition_list
 ;
+
 
 function_declaration_list:
     function_declaration
@@ -125,6 +130,15 @@ function_declaration:
         $$->set_local_list(*$4);
 		program_object.set_procedure_map(*$$);
 		$4->global_list_in_proc_map_check(get_line_number());
+
+        /* push into global symb table*/
+        if(global_symbol_table->variable_in_symbol_list_check(*$2))
+        {
+            int line = get_line_number();
+            report_error("Variable/Function is declared twice", line);
+        }
+		Symbol_Table_Entry * ste = new Symbol_Table_Entry(*$2, function_data_type);
+        global_symbol_table->push_symbol(ste);
 	}
 |
 	INTEGER NAME '(' decl_arg_list ')' ';'
@@ -133,6 +147,15 @@ function_declaration:
         $$->set_local_list(*$4);
 		program_object.set_procedure_map(*$$);
 		$4->global_list_in_proc_map_check(get_line_number());
+
+        /* push into global symb table*/
+        if(global_symbol_table->variable_in_symbol_list_check(*$2))
+        {
+            int line = get_line_number();
+            report_error("Variable/Function is declared twice", line);
+        }
+		Symbol_Table_Entry * ste = new Symbol_Table_Entry(*$2, function_data_type);
+        global_symbol_table->push_symbol(ste);
 	}
 |
 	DOUBLE NAME '(' decl_arg_list ')' ';'
@@ -141,6 +164,15 @@ function_declaration:
         $$->set_local_list(*$4);
 		program_object.set_procedure_map(*$$);
 		$4->global_list_in_proc_map_check(get_line_number());
+
+        /* push into global symb table*/
+        if(global_symbol_table->variable_in_symbol_list_check(*$2))
+        {
+            int line = get_line_number();
+            report_error("Variable/Function is declared twice", line);
+        }
+		Symbol_Table_Entry * ste = new Symbol_Table_Entry(*$2, function_data_type);
+        global_symbol_table->push_symbol(ste);
 	}
 |
 	FLOAT NAME '(' decl_arg_list ')' ';'
@@ -149,6 +181,15 @@ function_declaration:
         $$->set_local_list(*$4);
 		program_object.set_procedure_map(*$$);
 		$4->global_list_in_proc_map_check(get_line_number());
+
+        /* push into global symb table*/
+        if(global_symbol_table->variable_in_symbol_list_check(*$2))
+        {
+            int line = get_line_number();
+            report_error("Variable/Function is declared twice", line);
+        }
+		Symbol_Table_Entry * ste = new Symbol_Table_Entry(*$2, function_data_type);
+        global_symbol_table->push_symbol(ste);
 	}
 ;
 
@@ -258,7 +299,14 @@ procedure_body:
 		}
         check_goto_validity(); //check if every goto statement points to a block that exists
 
-		current_procedure->set_basic_block_list(*$4);
+        /* guard */
+        if(current_procedure == NULL){
+			int line = get_line_number();
+			report_error("Corresponding function has never been declared", line);
+        }
+        else{
+            current_procedure->set_basic_block_list(*$4);
+        }
 
 		delete $4;
 	}
@@ -271,7 +319,14 @@ procedure_body:
 			report_error("Atleast 1 basic block should have a return statement", line);
 		}
 
-		current_procedure->set_basic_block_list(*$2);
+        /* guard */
+        if(current_procedure == NULL){
+			int line = get_line_number();
+			report_error("Corresponding function has never been declared", line);
+        }
+        else{
+            current_procedure->set_basic_block_list(*$2);
+        }
 
 		delete $2;
 	}
@@ -290,12 +345,11 @@ declaration_statement_list:
 			report_error("Variable name cannot be same as procedure name", line);
 		}
         if(current_procedure == NULL){
-		    $$ = new Symbol_Table();
+		    $$ = global_symbol_table;
         }
         else{
             $$ = current_procedure->get_symbol_table();
         }
-        printf("pushing new symbol \n");
 
 		$$->push_symbol($1);
 	}
@@ -329,7 +383,7 @@ declaration_statement_list:
 		else
         {
             if(current_procedure == NULL){
-                $$ = new Symbol_Table();
+                $$ = global_symbol_table;
             }
             else{
                 $$ = current_procedure->get_symbol_table();
@@ -350,7 +404,6 @@ declaration_statement:
 declaration:
 	INTEGER NAME 
 	{
-        printf("new symbol table entry");
 		$$ = new Symbol_Table_Entry(*$2, int_data_type);
 
 		delete $2;
@@ -724,8 +777,13 @@ variable:
 	NAME
 	{
 		Symbol_Table_Entry var_table_entry;
+        /* guard */
+        if(current_procedure == NULL){
+			int line = get_line_number();
+			report_error("Corresponding function has never been declared", line);
+        }
 
-		if (current_procedure->variable_in_symbol_list_check(*$1))
+		else if (current_procedure->variable_in_symbol_list_check(*$1))
 			 var_table_entry = current_procedure->get_symbol_table_entry(*$1);
 
 		else if (program_object.variable_in_symbol_list_check(*$1))
