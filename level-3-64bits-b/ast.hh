@@ -27,11 +27,14 @@
 #include <string>
 #include <map>
 #include <iomanip>
+#include "procedure.hh" //NEW
 
 #define AST_SPACE "         "
 #define AST_NODE_SPACE "            "
 #define COND_SPACE "            "
 #define COND_NODE_SPACE "               "
+
+
 
 static map<int, string> rel_operators_map = {{0, "LT"}, {1, "GT"}, {2, "GE"}, {3, "LE"}, {4, "NE"}, {5, "EQ"}};
 static map<int, string> arith_operators_map = {{0, "UMINUS"}, {1, "PLUS"}, {2, "MINUS"}, {3, "MULT"}, {4, "DIV"}};
@@ -113,6 +116,24 @@ public:
 	bool check_ast(int line);
 	void print_ast(ostream & file_buffer);
     Value_Bundle calculate(Value_Bundle x, Value_Bundle y, Result_Enum res_enum);
+
+	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
+};
+
+class Function_Call_Ast:public Ast
+{
+    string name;
+    list<Ast*> args;
+    Procedure * proc;
+
+public:
+	Function_Call_Ast(string temp_name, list<Ast*> temp_args, Procedure *p);
+	~Function_Call_Ast();
+	void set_data_type(Data_Type type); 
+
+	Data_Type get_data_type();
+	bool check_ast(int line);
+	void print_ast(ostream & file_buffer);
 
 	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
 };

@@ -374,6 +374,40 @@ Eval_Result & Arithmetic_Expr_Ast::evaluate(Local_Environment & eval_env, ostrea
 	    return result;
     }
 }
+///////////////////////////////////////////////////////////////////////////
+
+Function_Call_Ast::Function_Call_Ast(string temp_name, list<Ast*> temp_args, Procedure *p)
+{
+    name = temp_name;
+    args = temp_args;
+    proc = p;
+}
+
+Function_Call_Ast::~Function_Call_Ast()
+{
+}
+
+Data_Type Function_Call_Ast::get_data_type()
+{
+	return node_data_type;
+}
+
+void Function_Call_Ast::set_data_type(Data_Type type)
+{
+    node_data_type = type;
+}
+bool Function_Call_Ast::check_ast(int line)
+{
+    node_data_type = proc->get_return_type();
+}
+
+void Function_Call_Ast::print_ast(ostream & file_buffer)
+{
+}
+
+Eval_Result & Function_Call_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
+{
+}
 
 //////////////////////////////////////////////////////////////////
 

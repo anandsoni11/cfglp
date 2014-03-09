@@ -50,13 +50,25 @@
 %left '+' '-'
 %left '*' '/'
 
+%type <procedure> function_declaration
+
 %type <symbol_table> declaration_statement_list
+%type <symbol_table> decl_arg_list
+%type <symbol_table> ne_decl_arg_list
+
 %type <symbol_entry> declaration_statement
+%type <symbol_entry> declaration
+
 %type <basic_block_list> basic_block_list
 %type <basic_block> basic_block
+
 %type <ast_list> executable_statement_list
-%type <ast_list> assignment_statement_list
-%type <ast> assignment_statement
+%type <ast_list> statement_list
+%type <ast_list> arg_list
+%type <ast_list> ne_arg_list
+
+%type <ast> general_statement
+%type <ast> function_call
 %type <ast> variable
 %type <ast> constant
 %type <ast> expression
@@ -66,6 +78,7 @@
 %type <ast> atomic_expression
 %type <ast> goto_statement
 %type <ast> if_statement
+%type <ast> return_statement
 
 
 /********PRECEDENCE RULES*********/
@@ -75,26 +88,20 @@
 
 program:
 	declaration_statement_list 
-	{
-		program_object.set_global_table(*$1);
-	}
     function_definition_list
     {
+		program_object.set_global_table(*$1);
     }
 |
 	declaration_statement_list 
-	{
-		program_object.set_global_table(*$1);
-	}
     function_declaration_list
     function_definition_list
     {
+		program_object.set_global_table(*$1);
     }
 |
     function_declaration_list
     function_definition_list
-    {
-    }
 |
     function_definition_list
     {
@@ -114,34 +121,34 @@ function_declaration_list:
 function_declaration:
 	VOID NAME '(' decl_arg_list ')' ';'
 	{
-		$$ = new Procedure(void_data_type, *$1);
-        $$->set_local_list(*$3);
+		$$ = new Procedure(void_data_type, *$2);
+        $$->set_local_list(*$4);
 		program_object.set_procedure_map(*$$);
-		$3->global_list_in_proc_map_check(get_line_number());
+		$4->global_list_in_proc_map_check(get_line_number());
 	}
 |
 	INTEGER NAME '(' decl_arg_list ')' ';'
 	{
-		$$ = new Procedure(int_data_type, *$1);
-        $$->set_local_list(*$3);
+		$$ = new Procedure(int_data_type, *$2);
+        $$->set_local_list(*$4);
 		program_object.set_procedure_map(*$$);
-		$3->global_list_in_proc_map_check(get_line_number());
+		$4->global_list_in_proc_map_check(get_line_number());
 	}
 |
 	DOUBLE NAME '(' decl_arg_list ')' ';'
 	{
-		$$ = new Procedure(double_data_type, *$1);
-        $$->set_local_list(*$3);
+		$$ = new Procedure(double_data_type, *$2);
+        $$->set_local_list(*$4);
 		program_object.set_procedure_map(*$$);
-		$3->global_list_in_proc_map_check(get_line_number());
+		$4->global_list_in_proc_map_check(get_line_number());
 	}
 |
 	FLOAT NAME '(' decl_arg_list ')' ';'
 	{
-		$$ = new Procedure(float_data_type, *$1);
-        $$->set_local_list(*$3);
+		$$ = new Procedure(float_data_type, *$2);
+        $$->set_local_list(*$4);
 		program_object.set_procedure_map(*$$);
-		$3->global_list_in_proc_map_check(get_line_number());
+		$4->global_list_in_proc_map_check(get_line_number());
 	}
 ;
 
@@ -157,10 +164,16 @@ function_definition_list:
 function_definition:
 	NAME 
     {
-        current_procedure = program_object->get_procedure(*$1);
-        if(current_procedure == NULL){
-			int line = get_line_number();
-			report_error("Procedure has not been declared before", line);
+		return_statement_used_flag = false;
+        if(*$1 == "main"){ //i.e the main's definition
+		    current_procedure = new Procedure(void_data_type, *$1);
+        }
+        else{
+            current_procedure = program_object.get_procedure(*$1);
+            if(current_procedure == NULL){
+                int line = get_line_number();
+                report_error("Procedure has not been declared before", line);
+            }
         }
     }
     '(' decl_arg_list ')'
@@ -241,7 +254,7 @@ procedure_body:
 		if (return_statement_used_flag == false)
 		{
 			int line = get_line_number();
-		//	report_error("Atleast 1 basic block should have a return statement", line);
+			report_error("Atleast 1 basic block should have a return statement", line);
 		}
         check_goto_validity(); //check if every goto statement points to a block that exists
 
@@ -282,6 +295,7 @@ declaration_statement_list:
         else{
             $$ = current_procedure->get_symbol_table();
         }
+        printf("pushing new symbol \n");
 
 		$$->push_symbol($1);
 	}
@@ -336,6 +350,7 @@ declaration_statement:
 declaration:
 	INTEGER NAME 
 	{
+        printf("new symbol table entry");
 		$$ = new Symbol_Table_Entry(*$2, int_data_type);
 
 		delete $2;
@@ -450,12 +465,14 @@ executable_statement_list:
 return_statement:
     RETURN ';'
     {
+		return_statement_used_flag = true;					// Current procedure has an occurrence of return statement
 		Ast * ret = new Return_Ast(NULL);
         $$ = ret;
     }
 |
     RETURN expression ';'
     {
+		return_statement_used_flag = true;					// Current procedure has an occurrence of return statement
 		Ast * ret = new Return_Ast($2);
         $$ = ret;
     }
@@ -584,16 +601,21 @@ atomic_expression: /* TODO string */
 function_call:
     NAME '(' arg_list ')'
     {
-		$$ = new Function_Call_Ast($1, $3);
-
 		int line = get_line_number();
+
+        Procedure * p = program_object.get_procedure(*$1);
+        if(p == NULL){
+			report_error("Function has not been declared but used here", line);
+        }
+		$$ = new Function_Call_Ast(*$1, *$3, p);
+
 		$$->check_ast(line);
     }
 ;
 
 arg_list:
     {
-        $$ = NULL;
+        $$ = new list<Ast*>; //empty list
     }
 |
     ne_arg_list

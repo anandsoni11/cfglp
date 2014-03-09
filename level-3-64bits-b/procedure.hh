@@ -33,6 +33,9 @@
 
 using namespace std;
 
+//dummy
+class Basic_Block;
+
 class Procedure;
 
 class Procedure

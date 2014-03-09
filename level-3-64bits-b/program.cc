@@ -63,7 +63,7 @@ void Program::set_procedure_map(Procedure & proc)
 	procedure_map[proc.get_proc_name()] = &proc;
 }
 
-Procedure*  Program::get_procedure(string name){
+Procedure* Program::get_procedure(string name){
     if(procedure_map.find(name) == procedure_map.end()){
         return NULL;
     }
