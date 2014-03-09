@@ -128,6 +128,7 @@ function_declaration:
 	{
 		$$ = new Procedure(void_data_type, *$2);
         $$->set_local_list(*$4);
+        //$$->print_ast(cout);
 		program_object.set_procedure_map(*$$);
 		$4->global_list_in_proc_map_check(get_line_number());
 
@@ -208,6 +209,7 @@ function_definition:
 		return_statement_used_flag = false;
         if(*$1 == "main"){ //i.e the main's definition
 		    current_procedure = new Procedure(void_data_type, *$1);
+		    program_object.set_procedure_map(*current_procedure);
         }
         else{
             current_procedure = program_object.get_procedure(*$1);
@@ -219,10 +221,25 @@ function_definition:
     }
     '(' decl_arg_list ')'
     {
+		int line = get_line_number();
+        /* guard */
+        if(current_procedure == NULL){
+			report_error("Corresponding function prototype has never been declared", line);
+        }
+        else{
         //TODO match the entries in above symb table and curr->symb-table
+            Symbol_Table * temp = $4;
+            Symbol_Table * ref = current_procedure->get_symbol_table();
+            ref->check(temp, line);
+        }
     }
     procedure_body
 	{
+            //current_procedure->print_ast(cout);
+            //program_object.get_procedure(*$1)->print_ast(cout);
+            /*if(*$1 == "main"){
+                program_object.print_ast();
+            }*/
 	}
 ;
 
@@ -302,7 +319,7 @@ procedure_body:
         /* guard */
         if(current_procedure == NULL){
 			int line = get_line_number();
-			report_error("Corresponding function has never been declared", line);
+			report_error("Corresponding function prototype has never been declared", line);
         }
         else{
             current_procedure->set_basic_block_list(*$4);
@@ -322,7 +339,7 @@ procedure_body:
         /* guard */
         if(current_procedure == NULL){
 			int line = get_line_number();
-			report_error("Corresponding function has never been declared", line);
+			report_error("Corresponding function prototype has never been declared", line);
         }
         else{
             current_procedure->set_basic_block_list(*$2);
@@ -780,7 +797,7 @@ variable:
         /* guard */
         if(current_procedure == NULL){
 			int line = get_line_number();
-			report_error("Corresponding function has never been declared", line);
+			report_error("Corresponding function prototype has never been declared", line);
         }
 
 		else if (current_procedure->variable_in_symbol_list_check(*$1))

@@ -137,6 +137,27 @@ void Symbol_Table::create(Local_Environment & local_global_variables_table)
 	}
 }
 
+bool Symbol_Table::check(Symbol_Table * temp, int line){
+    list<Symbol_Table_Entry *> temp_variable_table = temp->get_variable_table();
+    if(variable_table.size() != temp_variable_table.size()){
+        report_error("No of params in function prototype & function definition don't match", line);
+        return false;
+    }
+    list<Symbol_Table_Entry*>::iterator it1,it2;
+    it1 = variable_table.begin();
+    it2 = temp_variable_table.begin();
+    for(; it1!=variable_table.end(); it1++, it2++){
+        if(! (*it1)->check(*it2)){
+            report_error("Parameter name/type in function prototype & function definition don't match", line);
+            return false;
+        }
+    }
+    return true;
+}
+
+list<Symbol_Table_Entry *> Symbol_Table::get_variable_table(){
+    return variable_table;
+}
 /////////////////////////////////////////////////////////////
 
 Symbol_Table_Entry::Symbol_Table_Entry()
@@ -163,4 +184,9 @@ Data_Type Symbol_Table_Entry::get_data_type()
 string Symbol_Table_Entry::get_variable_name()
 {
 	return variable_name;
+}
+
+bool Symbol_Table_Entry::check(Symbol_Table_Entry * e){
+    if(e->variable_name == variable_name && e->variable_data_type == variable_data_type) return true;
+    return false;
 }

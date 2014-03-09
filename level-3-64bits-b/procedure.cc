@@ -87,10 +87,10 @@ Symbol_Table * Procedure::get_symbol_table()
 
 void Procedure::print_ast(ostream & file_buffer)
 {
-	file_buffer << PROC_SPACE << "Procedure: main" << "\n\n";
+	file_buffer << PROC_SPACE << "Procedure: " << name<< "\n\n";
 
-	list<Basic_Block *>::iterator i;
-	for(i = basic_block_list.begin(); i != basic_block_list.end(); i++)
+	list<Basic_Block *>::iterator i = basic_block_list.begin();
+	for(; i != basic_block_list.end(); i++)
 		(*i)->print_bb(file_buffer);
 
     i--;

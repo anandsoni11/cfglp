@@ -106,6 +106,7 @@ bool Assignment_Ast::check_ast(int line)
 
 void Assignment_Ast::print_ast(ostream & file_buffer)
 {
+    file_buffer << endl;
 	file_buffer << AST_SPACE << "Asgn:\n";
 
 	file_buffer << AST_NODE_SPACE"LHS (";
@@ -396,6 +397,7 @@ void Function_Call_Ast::set_data_type(Data_Type type)
 {
     node_data_type = type;
 }
+
 bool Function_Call_Ast::check_ast(int line)
 {
     if(proc == NULL){
@@ -408,6 +410,14 @@ bool Function_Call_Ast::check_ast(int line)
 
 void Function_Call_Ast::print_ast(ostream & file_buffer)
 {
+    file_buffer << endl;
+	file_buffer << AST_SPACE << "FN CALL: " << name <<"(";
+    list<Ast*>::iterator itr;
+    for(itr=args.begin(); itr!=args.end(); itr++){
+        file_buffer << endl << AST_NODE_SPACE;
+        (*itr)->print_ast(file_buffer);
+    }
+	file_buffer << ")";
 }
 
 Eval_Result & Function_Call_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
@@ -577,12 +587,22 @@ Data_Type Return_Ast::get_data_type()
 
 void Return_Ast::print_ast(ostream & file_buffer)
 {
-	file_buffer << AST_SPACE << "Return <NOTHING>\n";
+    file_buffer << endl;
+	if(expression == NULL) {
+        file_buffer << AST_SPACE << "RETURN <NOTHING>";
+        file_buffer << endl << endl;
+    }
+    else{
+        file_buffer << AST_SPACE << "RETURN ";
+        expression->print_ast(file_buffer);
+        file_buffer << endl << endl;
+    }
 }
 
 Eval_Result & Return_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
 {
-	file_buffer << AST_SPACE << "Return <NOTHING>\n";
+    print_ast(file_buffer);
+	//file_buffer << AST_SPACE << "Return <NOTHING>\n";
 	Eval_Result & result = *new Eval_Result_Value_Int();
     result.set_result_enum(return_result); //set the type to go_to_result enum
 	return result;

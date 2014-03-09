@@ -66,6 +66,8 @@ public:
 	void global_list_in_proc_map_check(int line);
 
 	void create(Local_Environment & local_global_variables_table);
+    bool check(Symbol_Table * temp, int line);
+    list<Symbol_Table_Entry *> get_variable_table();
 };
 
 class Symbol_Table_Entry
@@ -77,6 +79,7 @@ public:
 	Symbol_Table_Entry();
 	Symbol_Table_Entry(string & name, Data_Type new_data_type);
 	~Symbol_Table_Entry();
+    bool check(Symbol_Table_Entry * e);
 
 	Data_Type get_data_type();
     void set_data_type(Data_Type type);
