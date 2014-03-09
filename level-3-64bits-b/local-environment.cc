@@ -58,6 +58,7 @@ Eval_Result_Value_Int::Eval_Result_Value_Int()
 	value = 0;
 	defined = false;
 	result_type = int_result;
+	result_flag = normal_flag;
 }
 
 Eval_Result_Value_Int::~Eval_Result_Value_Int()
@@ -101,6 +102,15 @@ Result_Enum Eval_Result_Value_Int::get_result_enum()
 	return result_type;
 }
 
+void Eval_Result_Value_Int::set_result_flag(Result_Flag res)
+{
+	result_flag = res;
+}
+
+Result_Flag Eval_Result_Value_Int::get_result_flag()
+{
+	return result_flag;
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 Eval_Result_Value_Float::Eval_Result_Value_Float()
@@ -108,6 +118,7 @@ Eval_Result_Value_Float::Eval_Result_Value_Float()
 	value = 0;
 	defined = false;
 	result_type = float_result;
+	result_flag = normal_flag;
 }
 
 Eval_Result_Value_Float::~Eval_Result_Value_Float()
@@ -149,6 +160,15 @@ Result_Enum Eval_Result_Value_Float::get_result_enum()
 {
 	return result_type;
 }
+void Eval_Result_Value_Float::set_result_flag(Result_Flag res)
+{
+	result_flag = res;
+}
+
+Result_Flag Eval_Result_Value_Float::get_result_flag()
+{
+	return result_flag;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -157,6 +177,7 @@ Eval_Result_Value_Double::Eval_Result_Value_Double()
 	value = 0;
 	defined = false;
 	result_type = double_result;
+	result_flag = normal_flag;
 }
 
 Eval_Result_Value_Double::~Eval_Result_Value_Double()
@@ -197,6 +218,16 @@ void Eval_Result_Value_Double::set_result_enum(Result_Enum res)
 Result_Enum Eval_Result_Value_Double::get_result_enum()
 {
 	return result_type;
+}
+
+void Eval_Result_Value_Double::set_result_flag(Result_Flag res)
+{
+	result_flag = res;
+}
+
+Result_Flag Eval_Result_Value_Double::get_result_flag()
+{
+	return result_flag;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////

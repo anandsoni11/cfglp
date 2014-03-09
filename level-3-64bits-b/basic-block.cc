@@ -60,10 +60,10 @@ void Basic_Block::print_bb(ostream & file_buffer)
 		(*i)->print_ast(file_buffer);
 }
 void  Basic_Block::check_if_return(){
-    Ast * last = statement_list.back();
+    /*Ast * last = statement_list.back();
     if(last->get_data_type() != return_data_type){
         report_internal_error("No return at end of last basic block : Atleast one of true, false, direct successors should be set");
-    }
+    }*/
 }
 
 Eval_Result & Basic_Block::evaluate(Local_Environment & eval_env, ostream & file_buffer)
@@ -82,8 +82,8 @@ Eval_Result & Basic_Block::evaluate(Local_Environment & eval_env, ostream & file
 			report_error ("Ast pointer seems to be NULL", NOLINE);
 
 		result = &((*i)->evaluate(eval_env, file_buffer)); 
-        if(result->get_result_enum() == go_to_result) return *result;
-        if(result->get_result_enum() == return_result) return *result;
+        if(result->get_result_flag() == go_to_flag) return *result;
+        if(result->get_result_flag() == return_flag) return *result;
 	}
 
 	return *result;

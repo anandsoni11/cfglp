@@ -147,7 +147,8 @@ Eval_Result & Program::evaluate()
 	file_buffer << GLOB_SPACE << "Global Variables (before evaluating):\n";
 	interpreter_global_table.print(file_buffer);
 
-	Eval_Result & result = main->evaluate(file_buffer);
+    list<Eval_Result_Value*> args;
+	Eval_Result & result = main->evaluate(file_buffer, args);
 	file_buffer << GLOB_SPACE << "Global Variables (after evaluating):\n";
 	interpreter_global_table.print(file_buffer);
 

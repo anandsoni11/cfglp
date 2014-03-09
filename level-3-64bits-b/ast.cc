@@ -134,6 +134,20 @@ Eval_Result & Assignment_Ast::evaluate(Local_Environment & eval_env, ostream & f
 	lhs->print_value(eval_env, file_buffer);
     file_buffer <<endl;
 
+    result.set_result_flag(normal_flag); 
+	return result;
+}
+
+Eval_Result & Assignment_Ast::evaluate_silently(Local_Environment & eval_env, ostream & file_buffer)
+{
+	Eval_Result & result = rhs->evaluate(eval_env, file_buffer);
+
+	if (result.is_variable_defined() == false)
+		report_error("Passing Arguments :: Variable should be defined", NOLINE);
+
+	lhs->set_value_of_evaluation(eval_env, result);
+
+    result.set_result_flag(normal_flag); 
 	return result;
 }
 /////////////////////////////////////////////////////////////////
@@ -226,6 +240,7 @@ Eval_Result & Relational_Expr_Ast::evaluate(Local_Environment & eval_env, ostrea
         Value_Bundle bundle;
         bundle.int_v = (int) compare_result;
         result.set_value(bundle);
+        result.set_result_flag(normal_flag); 
 	    return result;
     }
     else if(node_data_type == float_data_type){
@@ -233,6 +248,7 @@ Eval_Result & Relational_Expr_Ast::evaluate(Local_Environment & eval_env, ostrea
         Value_Bundle bundle;
         bundle.float_v = (float) compare_result;
         result.set_value(bundle);
+        result.set_result_flag(normal_flag); 
 	    return result;
     }
     else if(node_data_type == double_data_type){
@@ -240,6 +256,7 @@ Eval_Result & Relational_Expr_Ast::evaluate(Local_Environment & eval_env, ostrea
         Value_Bundle bundle;
         bundle.float_v = (float) compare_result;
         result.set_value(bundle);
+        result.set_result_flag(normal_flag); 
 	    return result;
     }
 }
@@ -352,6 +369,7 @@ Eval_Result & Arithmetic_Expr_Ast::evaluate(Local_Environment & eval_env, ostrea
         else if(operand_result_enum == float_result)    bundle.int_v = (int) calculated_result.float_v;
         else if(operand_result_enum == double_result)   bundle.int_v = (int) calculated_result.float_v;
         result.set_value(bundle);
+        result.set_result_flag(normal_flag); 
 	    return result;
     }
     else if(node_data_type == float_data_type){
@@ -362,6 +380,7 @@ Eval_Result & Arithmetic_Expr_Ast::evaluate(Local_Environment & eval_env, ostrea
         else if(operand_result_enum == float_result)    bundle.float_v = (float) calculated_result.float_v;
         else if(operand_result_enum == double_result)   bundle.float_v = (float) calculated_result.float_v;
         result.set_value(bundle);
+        result.set_result_flag(normal_flag); 
 	    return result;
     }
     else if(node_data_type == double_data_type){
@@ -372,6 +391,7 @@ Eval_Result & Arithmetic_Expr_Ast::evaluate(Local_Environment & eval_env, ostrea
         else if(operand_result_enum == float_result)    bundle.float_v = (double) calculated_result.float_v;
         else if(operand_result_enum == double_result)   bundle.float_v = (double) calculated_result.float_v;
         result.set_value(bundle);
+        result.set_result_flag(normal_flag); 
 	    return result;
     }
 }
@@ -402,10 +422,12 @@ bool Function_Call_Ast::check_ast(int line)
 {
     if(proc == NULL){
         node_data_type = int_data_type; //CHECK
+        return false;
     }
-    else{
-        node_data_type = proc->get_return_type();
-    }
+    node_data_type = proc->get_return_type();
+    if(! proc->validate_arg_list(args, line)) return false;
+
+    return true;
 }
 
 void Function_Call_Ast::print_ast(ostream & file_buffer)
@@ -420,8 +442,44 @@ void Function_Call_Ast::print_ast(ostream & file_buffer)
 	file_buffer << ")";
 }
 
+Eval_Result_Value * Function_Call_Ast::convert_to_value(Eval_Result & result){
+	Eval_Result_Value * i;
+	if (result.get_result_enum() == int_result)
+	{
+		i = new Eval_Result_Value_Int();
+        Value_Bundle bundle = result.get_value();
+	 	i->set_value(bundle);
+	}
+    else if (result.get_result_enum() == float_result)
+	{
+		i = new Eval_Result_Value_Float();
+        Value_Bundle bundle = result.get_value();
+	 	i->set_value(bundle);
+	}
+    else if (result.get_result_enum() == double_result)
+	{
+		i = new Eval_Result_Value_Double();
+        Value_Bundle bundle = result.get_value();
+	 	i->set_value(bundle);
+	}
+    return i;
+}
+
 Eval_Result & Function_Call_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
 {
+    list<Eval_Result_Value*> arguments;
+
+
+    list<Ast*>::iterator arg_it = args.begin();
+    for(; arg_it != args.end(); arg_it++){
+        Eval_Result & value = (*arg_it)->evaluate(eval_env, file_buffer);
+        Eval_Result_Value * i = convert_to_value(value);
+        arguments.push_back(i);
+    }
+
+    Eval_Result& result = proc->evaluate(file_buffer, arguments);
+    result.set_result_flag(normal_flag);
+    return result;
 }
 
 //////////////////////////////////////////////////////////////////
@@ -545,6 +603,7 @@ Eval_Result & Name_Ast::evaluate(Local_Environment & eval_env, ostream & file_bu
         else if(result.get_result_enum() == float_result)    bundle.int_v = (int) result.get_value().float_v;
         else if(result.get_result_enum() == double_result)   bundle.int_v = (int) result.get_value().float_v;
         new_result.set_value(bundle);
+        result.set_result_flag(normal_flag); 
 	    return new_result;
     }
     else if(get_data_type() == float_data_type){
@@ -555,6 +614,7 @@ Eval_Result & Name_Ast::evaluate(Local_Environment & eval_env, ostream & file_bu
         else if(result.get_result_enum() == float_result)    bundle.float_v = (float) result.get_value().float_v;
         else if(result.get_result_enum() == double_result)   bundle.float_v = (float) result.get_value().float_v;
         new_result.set_value(bundle);
+        result.set_result_flag(normal_flag); 
 	    return new_result;
     }
     else if(get_data_type() == double_data_type){
@@ -565,6 +625,7 @@ Eval_Result & Name_Ast::evaluate(Local_Environment & eval_env, ostream & file_bu
         else if(result.get_result_enum() == float_result)    bundle.float_v = (double) result.get_value().float_v;
         else if(result.get_result_enum() == double_result)   bundle.float_v = (double) result.get_value().float_v;
         new_result.set_value(bundle);
+        result.set_result_flag(normal_flag); 
 	    return new_result;
     }
 }
@@ -574,7 +635,12 @@ Eval_Result & Name_Ast::evaluate(Local_Environment & eval_env, ostream & file_bu
 Return_Ast::Return_Ast(Ast * expr)
 {
     expression = expr;
-    node_data_type = return_data_type;
+    if(expression == NULL){
+        node_data_type = void_data_type;
+    }
+    else{
+        node_data_type = expression->get_data_type();
+    }
 }
 
 Return_Ast::~Return_Ast()
@@ -602,9 +668,16 @@ void Return_Ast::print_ast(ostream & file_buffer)
 Eval_Result & Return_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
 {
     print_ast(file_buffer);
+
+    if(expression == NULL){
+        Eval_Result & result = * new Eval_Result_Value_Int();
+        result.set_result_flag(return_flag);
+        return result;
+    }
+	Eval_Result &result = expression->evaluate(eval_env, file_buffer);
 	//file_buffer << AST_SPACE << "Return <NOTHING>\n";
-	Eval_Result & result = *new Eval_Result_Value_Int();
-    result.set_result_enum(return_result); //set the type to go_to_result enum
+    //Set flag "RETURN"
+    result.set_result_flag(return_flag); 
 	return result;
 }
 template class Number_Ast<int>;
@@ -636,13 +709,13 @@ Eval_Result & Goto_Ast::evaluate(Local_Environment & eval_env, ostream & file_bu
 {
     print_ast(file_buffer);
 	Eval_Result & result = *new Eval_Result_Value_Int();
-    result.set_result_enum(go_to_result); //set the type to go_to_result enum
 
     Value_Bundle bundle;
     bundle.int_v = successor;
     result.set_value(bundle);
 
 	file_buffer << AST_SPACE << "GOTO (BB "<< successor <<")"<<"\n";
+    result.set_result_flag(go_to_flag); 
 	return result;
 }
 
@@ -686,12 +759,12 @@ Eval_Result & If_Ast::evaluate(Local_Environment & eval_env, ostream & file_buff
         file_buffer << AST_SPACE << "Condition False : Goto (BB "<< successor << ")"<<endl;
     }
     
-    result.set_result_enum(go_to_result); //set the type to go_to_result enum
 
     Value_Bundle bundle;
     bundle.int_v = successor;
     result.set_value(bundle);
 
+    result.set_result_flag(normal_flag); 
     return result;
 }
 ///////////////// UTILS DEFINITION /////////////////////////

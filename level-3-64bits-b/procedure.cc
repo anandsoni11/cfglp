@@ -84,6 +84,31 @@ Symbol_Table * Procedure::get_symbol_table()
 {
     return &local_symbol_table;
 }
+void Procedure::set_param_count(int count){
+    param_count = count;
+}
+
+int Procedure::get_param_count(){
+    return param_count;
+}
+
+bool Procedure::validate_arg_list(list<Ast*> args, int line){
+    list<Symbol_Table_Entry *> var_table = local_symbol_table.get_variable_table();
+
+    list<Ast*>::iterator arg_itr = args.begin();
+    list<Symbol_Table_Entry*>::iterator var_itr = var_table.begin();
+    if(args.size() != param_count){
+	    report_error("No of arguments in fn call doesn't match function prototype", line);
+        return false;
+    }
+    for(; arg_itr != args.end(); arg_itr++, var_itr++){
+        if ((*arg_itr)->get_data_type() != (*var_itr)->get_data_type()){
+	        report_error("Arguments type don't match argument type expected in function prototype", line);
+            return false;
+        }
+    }
+    return true;
+}
 
 void Procedure::print_ast(ostream & file_buffer)
 {
@@ -94,7 +119,6 @@ void Procedure::print_ast(ostream & file_buffer)
 		(*i)->print_bb(file_buffer);
 
     i--;
-    //CHECK** (*i)->check_if_return();
 }
 	
 Basic_Block & Procedure::get_start_basic_block()
@@ -139,10 +163,21 @@ Basic_Block * Procedure::get_target_bb(int target)
 	return NULL;
 }
 
-Eval_Result & Procedure::evaluate(ostream & file_buffer)
+Eval_Result & Procedure::evaluate(ostream & file_buffer, list<Eval_Result_Value*> args)
 {
 	Local_Environment & eval_env = *new Local_Environment();
 	local_symbol_table.create(eval_env);
+
+    /* evaluate without printing assignment asts (passed as 'args') in eval_env */
+	//void put_variable_value(Eval_Result_Value & value, string name);
+    list<Symbol_Table_Entry*> var_table = local_symbol_table.get_variable_table();
+    list<Symbol_Table_Entry*>::iterator var_it = var_table.begin();
+
+    list<Eval_Result_Value*>::iterator arg_it = args.begin();
+    for(; arg_it!=args.end() ;arg_it++, var_it++){
+        eval_env.put_variable_value(*(*arg_it), (*var_it)->get_variable_name());
+    }
+    /* */
 	
 	Eval_Result * result = NULL;
 
@@ -155,7 +190,7 @@ Eval_Result & Procedure::evaluate(ostream & file_buffer)
 	while (current_bb)
 	{
 		result = &(current_bb->evaluate(eval_env, file_buffer));
-        if(result->get_result_enum() == go_to_result){ //if this is the result of go-to stmt , update the current_bb accordingly
+        if(result->get_result_flag() == go_to_flag){ //if this is the result of go-to stmt , update the current_bb accordingly
             Value_Bundle result_value = result->get_value();
             int target = result_value.int_v;
             current_bb = get_target_bb(target);
@@ -169,18 +204,24 @@ Eval_Result & Procedure::evaluate(ostream & file_buffer)
         else{
             current_bb = get_next_bb(*current_bb);		
         }
-        if(result->get_result_enum() == return_result){
+        if(result->get_result_flag() == return_flag){
             break;
         } //if this is the result of go-to stmt , update the current_bb accordingly
 	}
 
-    if(result->get_result_enum() != return_result){
+    if(result->get_result_flag() != return_flag){
         report_internal_error("Atleast one of true, false, direct successors should be set");
     }
 
 	file_buffer << "\n\n";
 	file_buffer << LOC_VAR_SPACE << "Local Variables (after evaluating):\n";
 	eval_env.print(file_buffer);
+    if(return_type!=void_data_type){
+#define AST_SPACE "         "
+	    file_buffer << AST_SPACE << "return : ";
+        result->print(file_buffer);
+        file_buffer<<endl;
+    }
 
 	return *result;
 }

@@ -36,12 +36,15 @@ using namespace std;
 //dummy
 class Basic_Block;
 
+class Ast;
+class Assignment_Ast;
 class Procedure;
 
 class Procedure
 {
 	Data_Type return_type;
 	string name;
+    int param_count;
 	Symbol_Table local_symbol_table;
 	list<Basic_Block *> basic_block_list;
 
@@ -62,9 +65,14 @@ public:
     Basic_Block * get_target_bb(int target); //target is the basic block number
 	Basic_Block & get_start_basic_block();
 
-	Eval_Result & evaluate(ostream & file_buffer);
+	Eval_Result & evaluate(ostream & file_buffer, list<Eval_Result_Value*> args);//list of Eval Results
 
 	bool variable_in_symbol_list_check(string variable);
+    bool validate_arg_list(list<Ast*> args, int line);
+
+    
+    void set_param_count(int count);
+    int get_param_count();
 };
 
 #endif

@@ -158,6 +158,9 @@ bool Symbol_Table::check(Symbol_Table * temp, int line){
 list<Symbol_Table_Entry *> Symbol_Table::get_variable_table(){
     return variable_table;
 }
+int Symbol_Table::size(){
+    return variable_table.size();
+}
 /////////////////////////////////////////////////////////////
 
 Symbol_Table_Entry::Symbol_Table_Entry()

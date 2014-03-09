@@ -42,9 +42,14 @@ typedef enum
 	float_result,
 	double_result,
 	void_result,
-    go_to_result, //go_to_ast returns Eval_Result_Value_Int with (result status enum to be this)
-    return_result //go_to_ast returns Eval_Result_Value_Int with (result status enum to be this)
 } Result_Enum;
+
+typedef enum
+{
+    normal_flag,
+    go_to_flag, //go_to_ast returns Eval_Result_Value_Int with this flag 
+    return_flag
+} Result_Flag;
 
 class Eval_Result;
 class Local_Environment;
@@ -53,16 +58,20 @@ class Eval_Result
 {
 protected:
 	Result_Enum result_type;
+	Result_Flag result_flag; //must be set before returning
 
 public:
 	virtual Value_Bundle get_value();
 	virtual void set_value(Value_Bundle value);
+    virtual void print(ostream & file_buffer) = 0;
 
 	virtual bool is_variable_defined();
 	virtual void set_variable_status(bool def);
 
 	virtual void set_result_enum(Result_Enum res) = 0;
 	virtual Result_Enum get_result_enum() = 0;
+	virtual void set_result_flag(Result_Flag res) = 0;
+	virtual Result_Flag get_result_flag() = 0;
 };
 
 class Eval_Result_Value:public Eval_Result
@@ -77,6 +86,8 @@ public:
 
 	virtual void set_result_enum(Result_Enum res) = 0;
 	virtual Result_Enum get_result_enum() = 0;
+	virtual void set_result_flag(Result_Flag res) = 0;
+	virtual Result_Flag get_result_flag() = 0;
 };
 
 class Eval_Result_Value_Int:public Eval_Result_Value
@@ -96,6 +107,8 @@ public:
 
 	void set_result_enum(Result_Enum res);
 	Result_Enum get_result_enum();
+	void set_result_flag(Result_Flag res);
+	Result_Flag get_result_flag();
 };
 
 class Eval_Result_Value_Float:public Eval_Result_Value
@@ -115,6 +128,8 @@ public:
 
 	void set_result_enum(Result_Enum res);
 	Result_Enum get_result_enum();
+	void set_result_flag(Result_Flag res);
+	Result_Flag get_result_flag();
 };
 
 class Eval_Result_Value_Double:public Eval_Result_Value
@@ -134,6 +149,8 @@ public:
 
 	void set_result_enum(Result_Enum res);
 	Result_Enum get_result_enum();
+	void set_result_flag(Result_Flag res);
+	Result_Flag get_result_flag();
 };
 
 class Local_Environment

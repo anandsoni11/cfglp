@@ -127,6 +127,7 @@ function_declaration:
 	VOID NAME '(' decl_arg_list ')' ';'
 	{
 		$$ = new Procedure(void_data_type, *$2);
+        $$->set_param_count($4->size());
         $$->set_local_list(*$4);
         //$$->print_ast(cout);
 		program_object.set_procedure_map(*$$);
@@ -145,6 +146,7 @@ function_declaration:
 	INTEGER NAME '(' decl_arg_list ')' ';'
 	{
 		$$ = new Procedure(int_data_type, *$2);
+        $$->set_param_count($4->size());
         $$->set_local_list(*$4);
 		program_object.set_procedure_map(*$$);
 		$4->global_list_in_proc_map_check(get_line_number());
@@ -162,6 +164,7 @@ function_declaration:
 	DOUBLE NAME '(' decl_arg_list ')' ';'
 	{
 		$$ = new Procedure(double_data_type, *$2);
+        $$->set_param_count($4->size());
         $$->set_local_list(*$4);
 		program_object.set_procedure_map(*$$);
 		$4->global_list_in_proc_map_check(get_line_number());
@@ -179,6 +182,7 @@ function_declaration:
 	FLOAT NAME '(' decl_arg_list ')' ';'
 	{
 		$$ = new Procedure(float_data_type, *$2);
+        $$->set_param_count($4->size());
         $$->set_local_list(*$4);
 		program_object.set_procedure_map(*$$);
 		$4->global_list_in_proc_map_check(get_line_number());
@@ -209,6 +213,7 @@ function_definition:
 		return_statement_used_flag = false;
         if(*$1 == "main"){ //i.e the main's definition
 		    current_procedure = new Procedure(void_data_type, *$1);
+            current_procedure->set_param_count(0);
 		    program_object.set_procedure_map(*current_procedure);
         }
         else{

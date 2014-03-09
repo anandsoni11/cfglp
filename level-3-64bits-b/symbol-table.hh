@@ -38,8 +38,7 @@ typedef enum
 	int_data_type,
 	float_data_type,
 	double_data_type,
-    return_data_type,
-    function_data_type
+    function_data_type //just for use in symbol table entry of function
 } Data_Type;
 
 typedef enum
@@ -68,6 +67,8 @@ public:
 	void create(Local_Environment & local_global_variables_table);
     bool check(Symbol_Table * temp, int line);
     list<Symbol_Table_Entry *> get_variable_table();
+
+    int size();
 };
 
 class Symbol_Table_Entry

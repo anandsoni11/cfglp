@@ -79,6 +79,7 @@ public:
 	void print_ast(ostream & file_buffer);
 
 	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
+	Eval_Result & evaluate_silently(Local_Environment & eval_env, ostream & file_buffer);
 };
 
 class Relational_Expr_Ast:public Ast
@@ -134,6 +135,7 @@ public:
 	Data_Type get_data_type();
 	bool check_ast(int line);
 	void print_ast(ostream & file_buffer);
+    Eval_Result_Value * convert_to_value(Eval_Result & result);
 
 	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
 };

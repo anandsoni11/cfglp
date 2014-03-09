@@ -42,6 +42,7 @@ using namespace std;
 #include"program.hh"
 
 #include "parser.h"
+bool error_in_parsing = false;
 
 int main(int argc, char * argv[]) 
 {
@@ -51,6 +52,12 @@ int main(int argc, char * argv[])
 
 	if(cfglp_parser.parse())
 		report_error("Cannot parse the input program", cfglp_parser.get_line_number());
+
+    if(error_in_parsing){
+        program_object.delete_all();
+
+        return 0;//we're done
+    }
 
 	if (command_options.is_do_eval_selected())
 	{

@@ -31,8 +31,11 @@ using namespace std;
 #include "user-options.hh"
 #include "error-display.hh"
 
+extern bool error_in_parsing;
+
 void report_error(string error_message, int line)
 {
+    error_in_parsing = true;
 	string file_name = command_options.get_file_name();
 
 	stringstream message;
