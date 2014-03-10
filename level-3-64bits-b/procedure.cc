@@ -70,6 +70,11 @@ Data_Type Procedure::get_return_type()
 	return return_type;
 }
 
+void Procedure::set_return_type(Data_Type type)
+{
+	return_type = type;
+}
+
 bool Procedure::variable_in_symbol_list_check(string variable)
 {
 	return local_symbol_table.variable_in_symbol_list_check(variable);
@@ -181,7 +186,7 @@ Eval_Result & Procedure::evaluate(ostream & file_buffer, list<Eval_Result_Value*
 	
 	Eval_Result * result = NULL;
 
-	file_buffer << PROC_SPACE << "Evaluating Procedure " << name << "\n";
+	file_buffer << PROC_SPACE << "Evaluating Procedure << " << name << " >>\n";
 	file_buffer << LOC_VAR_SPACE << "Local Variables (before evaluating):\n";
 	eval_env.print(file_buffer);
 	file_buffer << "\n";
@@ -214,9 +219,9 @@ Eval_Result & Procedure::evaluate(ostream & file_buffer, list<Eval_Result_Value*
     }
 
 	file_buffer << "\n\n";
-	file_buffer << LOC_VAR_SPACE << "Local Variables (after evaluating):\n";
+	file_buffer << LOC_VAR_SPACE << "Local Variables (after evaluating) Function: << " << name << " >>\n";
 	eval_env.print(file_buffer);
-    if(return_type!=void_data_type){
+    if(return_type!=void_data_type && result->get_result_enum() != void_result){
 #define AST_SPACE "         "
 	    file_buffer << AST_SPACE << "return : ";
         result->print(file_buffer);

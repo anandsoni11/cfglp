@@ -214,6 +214,9 @@ function_definition:
         if(*$1 == "main"){ //i.e the main's definition
 		    current_procedure = new Procedure(void_data_type, *$1);
             current_procedure->set_param_count(0);
+            /* imp  set local list (so that its scope is set to local*/
+            Symbol_Table *symtab = new Symbol_Table();
+            current_procedure->set_local_list(*symtab);
 		    program_object.set_procedure_map(*current_procedure);
         }
         else{
@@ -543,6 +546,17 @@ return_statement:
 		return_statement_used_flag = true;					// Current procedure has an occurrence of return statement
 		Ast * ret = new Return_Ast(NULL);
         $$ = ret;
+        /* if curr_proc = main, set its return-type to void
+        else check that curr_proc.return-type == void
+
+        if(current_procedure->get_proc_name() == "main"){
+            current_procedure->set_return_type(void_data_type);
+        }
+        else if(current_procedure->get_return_type() != void_data_type){
+		    int line = get_line_number();
+			report_error("Return statement doesn't match return type of procedure", line);
+        }
+        */
     }
 |
     RETURN expression ';'
@@ -550,6 +564,16 @@ return_statement:
 		return_statement_used_flag = true;					// Current procedure has an occurrence of return statement
 		Ast * ret = new Return_Ast($2);
         $$ = ret;
+        /* if curr_proc = main, set its return-type to that of expression
+        else check that curr_proc.return-type == expression.data_type*/
+
+        if(current_procedure->get_proc_name() == "main"){
+            current_procedure->set_return_type($2->get_data_type());
+        }
+        else if(current_procedure->get_return_type() != $2->get_data_type()){
+		    int line = get_line_number();
+			report_error("Return statement doesn't match return type of procedure", line);
+        }
     }
 ;
 statement_list:

@@ -671,6 +671,7 @@ Eval_Result & Return_Ast::evaluate(Local_Environment & eval_env, ostream & file_
 
     if(expression == NULL){
         Eval_Result & result = * new Eval_Result_Value_Int();
+        result.set_result_enum(void_result);
         result.set_result_flag(return_flag);
         return result;
     }
@@ -764,7 +765,7 @@ Eval_Result & If_Ast::evaluate(Local_Environment & eval_env, ostream & file_buff
     bundle.int_v = successor;
     result.set_value(bundle);
 
-    result.set_result_flag(normal_flag); 
+    result.set_result_flag(go_to_flag); 
     return result;
 }
 ///////////////// UTILS DEFINITION /////////////////////////
