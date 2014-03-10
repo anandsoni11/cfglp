@@ -238,13 +238,22 @@ Local_Environment::Local_Environment()
 Local_Environment::~Local_Environment()
 {}
 
-void Local_Environment::print_new(ostream & file_buffer, Eval_Result_Value * val, int param_count){
+void Local_Environment::print_new(ostream & file_buffer, Eval_Result* val, int param_count){
     bool printed = false;
     if(val == NULL) printed = true;
     int c = 0;
 	map<string, Eval_Result_Value *>::iterator i;
 	for (i = variable_table.begin(); i != variable_table.end(); i++,c++)
 	{
+        if(c == param_count){
+            if(printed == false){
+                printed = true;
+#define AST_SPACE "         "
+                file_buffer << AST_SPACE << "return : ";
+                val->print(file_buffer);
+                file_buffer<<endl;
+            }
+        }
 		Eval_Result_Value * vi = variable_table[(*i).first];
 		if (vi != NULL)
 		{
@@ -260,6 +269,11 @@ void Local_Environment::print_new(ostream & file_buffer, Eval_Result_Value * val
 	}
 
     if(printed == false){
+        printed = true;
+#define AST_SPACE "         "
+	    file_buffer << AST_SPACE << "return : ";
+        val->print(file_buffer);
+        file_buffer<<endl;
     }
 }
 void Local_Environment::print(ostream & file_buffer)

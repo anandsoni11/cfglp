@@ -640,6 +640,7 @@ Eval_Result & Name_Ast::evaluate(Local_Environment & eval_env, ostream & file_bu
         else if(result.get_result_enum() == float_result)    bundle.int_v = (int) result.get_value().float_v;
         else if(result.get_result_enum() == double_result)   bundle.int_v = (int) result.get_value().float_v;
         new_result.set_value(bundle);
+        new_result.set_variable_status(result.is_variable_defined()); //imp as set_value(bundle) sets defined to TRUE
         new_result.set_result_flag(normal_flag); 
 	    return new_result;
     }
@@ -651,6 +652,7 @@ Eval_Result & Name_Ast::evaluate(Local_Environment & eval_env, ostream & file_bu
         else if(result.get_result_enum() == float_result)    bundle.float_v = (float) result.get_value().float_v;
         else if(result.get_result_enum() == double_result)   bundle.float_v = (float) result.get_value().float_v;
         new_result.set_value(bundle);
+        new_result.set_variable_status(result.is_variable_defined());
         new_result.set_result_flag(normal_flag); 
 	    return new_result;
     }
@@ -662,6 +664,7 @@ Eval_Result & Name_Ast::evaluate(Local_Environment & eval_env, ostream & file_bu
         else if(result.get_result_enum() == float_result)    bundle.float_v = (double) result.get_value().float_v;
         else if(result.get_result_enum() == double_result)   bundle.float_v = (double) result.get_value().float_v;
         new_result.set_value(bundle);
+        new_result.set_variable_status(result.is_variable_defined());
         new_result.set_result_flag(normal_flag); 
 	    return new_result;
     }
