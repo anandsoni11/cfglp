@@ -219,15 +219,16 @@ int Relational_Expr_Ast::compare(Value_Bundle x, Value_Bundle y, Result_Enum res
 
 Eval_Result & Relational_Expr_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
 {
+	Eval_Result & lhs_result = lhs->evaluate(eval_env, file_buffer);
+
+	if (lhs_result.is_variable_defined() == false)
+		report_error("Variable should be defined to be on lhs", NOLINE);
+
 	Eval_Result & rhs_result = rhs->evaluate(eval_env, file_buffer);
 
 	if (rhs_result.is_variable_defined() == false)
 		report_error("Variable should be defined to be on rhs", NOLINE);
 
-	Eval_Result & lhs_result = lhs->evaluate(eval_env, file_buffer);
-
-	if (lhs_result.is_variable_defined() == false)
-		report_error("Variable should be defined to be on lhs", NOLINE);
 
 
     int compare_result = this->compare(lhs_result.get_value(), rhs_result.get_value(), lhs_result.get_result_enum());
@@ -478,8 +479,44 @@ Eval_Result & Function_Call_Ast::evaluate(Local_Environment & eval_env, ostream 
     }
 
     Eval_Result& result = proc->evaluate(file_buffer, arguments);
-    result.set_result_flag(normal_flag);
-    return result;
+
+    if(node_data_type == int_data_type){
+        Eval_Result & new_result = *new Eval_Result_Value_Int();
+        Value_Bundle bundle;
+
+        if     (result.get_result_enum() == int_result)      bundle.int_v = (int) result.get_value().int_v;
+        else if(result.get_result_enum() == float_result)    bundle.int_v = (int) result.get_value().float_v;
+        else if(result.get_result_enum() == double_result)   bundle.int_v = (int) result.get_value().float_v;
+        new_result.set_value(bundle);
+        new_result.set_result_flag(normal_flag); 
+	    return new_result;
+    }
+    else if(node_data_type == float_data_type){
+        Eval_Result & new_result = *new Eval_Result_Value_Float();
+        Value_Bundle bundle;
+
+        if     (result.get_result_enum() == int_result)      bundle.float_v = (float) result.get_value().int_v;
+        else if(result.get_result_enum() == float_result)    bundle.float_v = (float) result.get_value().float_v;
+        else if(result.get_result_enum() == double_result)   bundle.float_v = (float) result.get_value().float_v;
+        new_result.set_value(bundle);
+        new_result.set_result_flag(normal_flag); 
+	    return new_result;
+    }
+    else if(node_data_type == double_data_type){
+        Eval_Result & new_result = *new Eval_Result_Value_Double();
+        Value_Bundle bundle;
+
+        if     (result.get_result_enum() == int_result)      bundle.float_v = (double) result.get_value().int_v;
+        else if(result.get_result_enum() == float_result)    bundle.float_v = (double) result.get_value().float_v;
+        else if(result.get_result_enum() == double_result)   bundle.float_v = (double) result.get_value().float_v;
+        new_result.set_value(bundle);
+        new_result.set_result_flag(normal_flag); 
+	    return new_result;
+    }
+    else{//void data type
+        result.set_result_flag(normal_flag); 
+	    return result;
+    }
 }
 
 //////////////////////////////////////////////////////////////////
@@ -603,7 +640,7 @@ Eval_Result & Name_Ast::evaluate(Local_Environment & eval_env, ostream & file_bu
         else if(result.get_result_enum() == float_result)    bundle.int_v = (int) result.get_value().float_v;
         else if(result.get_result_enum() == double_result)   bundle.int_v = (int) result.get_value().float_v;
         new_result.set_value(bundle);
-        result.set_result_flag(normal_flag); 
+        new_result.set_result_flag(normal_flag); 
 	    return new_result;
     }
     else if(get_data_type() == float_data_type){
@@ -614,7 +651,7 @@ Eval_Result & Name_Ast::evaluate(Local_Environment & eval_env, ostream & file_bu
         else if(result.get_result_enum() == float_result)    bundle.float_v = (float) result.get_value().float_v;
         else if(result.get_result_enum() == double_result)   bundle.float_v = (float) result.get_value().float_v;
         new_result.set_value(bundle);
-        result.set_result_flag(normal_flag); 
+        new_result.set_result_flag(normal_flag); 
 	    return new_result;
     }
     else if(get_data_type() == double_data_type){
@@ -625,7 +662,7 @@ Eval_Result & Name_Ast::evaluate(Local_Environment & eval_env, ostream & file_bu
         else if(result.get_result_enum() == float_result)    bundle.float_v = (double) result.get_value().float_v;
         else if(result.get_result_enum() == double_result)   bundle.float_v = (double) result.get_value().float_v;
         new_result.set_value(bundle);
-        result.set_result_flag(normal_flag); 
+        new_result.set_result_flag(normal_flag); 
 	    return new_result;
     }
 }
