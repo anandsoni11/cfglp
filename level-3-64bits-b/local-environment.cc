@@ -238,6 +238,30 @@ Local_Environment::Local_Environment()
 Local_Environment::~Local_Environment()
 {}
 
+void Local_Environment::print_new(ostream & file_buffer, Eval_Result_Value * val, int param_count){
+    bool printed = false;
+    if(val == NULL) printed = true;
+    int c = 0;
+	map<string, Eval_Result_Value *>::iterator i;
+	for (i = variable_table.begin(); i != variable_table.end(); i++,c++)
+	{
+		Eval_Result_Value * vi = variable_table[(*i).first];
+		if (vi != NULL)
+		{
+			if (vi->is_variable_defined() == false)
+				file_buffer << VAR_SPACE << (*i).first << " : undefined" << "\n";
+		
+			else{
+				file_buffer << VAR_SPACE << (*i).first << " : " ;
+                vi->print(file_buffer) ;
+                file_buffer << "\n";
+            }
+		}
+	}
+
+    if(printed == false){
+    }
+}
 void Local_Environment::print(ostream & file_buffer)
 {
 	map<string, Eval_Result_Value *>::iterator i;

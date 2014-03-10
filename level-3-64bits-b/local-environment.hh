@@ -162,6 +162,7 @@ public:
 	~Local_Environment();
 
 	void print(ostream & file_buffer);
+	void print_new(ostream & file_buffer, Eval_Result_Value * val, int param_count);
 	bool is_variable_defined(string name);
 	Eval_Result_Value * get_variable_value(string name);
 	void put_variable_value(Eval_Result_Value & value, string name);
