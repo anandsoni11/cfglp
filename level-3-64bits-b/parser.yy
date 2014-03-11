@@ -211,20 +211,22 @@ function_definition:
 	NAME 
     {
 		return_statement_used_flag = false;
+        non_empty_return_seen = false;
+
+/*
         if(*$1 == "main"){ //i.e the main's definition
 		    current_procedure = new Procedure(void_data_type, *$1);
             current_procedure->set_param_count(0);
-            /* imp  set local list (so that its scope is set to local*/
+            // imp  set local list (so that its scope is set to local
             Symbol_Table *symtab = new Symbol_Table();
             current_procedure->set_local_list(*symtab);
 		    program_object.set_procedure_map(*current_procedure);
         }
-        else{
-            current_procedure = program_object.get_procedure(*$1);
-            if(current_procedure == NULL){
-                int line = get_line_number();
-                report_error("Procedure has not been declared before", line);
-            }
+        */
+        current_procedure = program_object.get_procedure(*$1);
+        if(current_procedure == NULL){
+            int line = get_line_number();
+            report_error("Procedure prototype can't be null", line);
         }
     }
     '(' decl_arg_list ')'
@@ -331,7 +333,12 @@ procedure_body:
         }
         else{
             current_procedure->set_basic_block_list(*$4);
+            if(non_empty_return_seen == false && current_procedure->get_return_type() != void_data_type){
+                int line = get_line_number();
+                report_error("Return statement doesn't match return type of procedure", line);
+            }
         }
+
 
 		delete $4;
 	}
@@ -351,7 +358,12 @@ procedure_body:
         }
         else{
             current_procedure->set_basic_block_list(*$2);
+            if(non_empty_return_seen == false && current_procedure->get_return_type() != void_data_type){
+                int line = get_line_number();
+                report_error("Return statement doesn't match return type of procedure", line);
+            }
         }
+
 
 		delete $2;
 	}
@@ -562,15 +574,18 @@ return_statement:
     RETURN expression ';'
     {
 		return_statement_used_flag = true;					// Current procedure has an occurrence of return statement
+        non_empty_return_seen = true;
 		Ast * ret = new Return_Ast($2);
         $$ = ret;
         /* if curr_proc = main, set its return-type to that of expression
         else check that curr_proc.return-type == expression.data_type*/
 
+/*
         if(current_procedure->get_proc_name() == "main"){
             current_procedure->set_return_type($2->get_data_type());
         }
-        else if(current_procedure->get_return_type() != $2->get_data_type()){
+        */
+        if(current_procedure->get_return_type() != $2->get_data_type()){
 		    int line = get_line_number();
 			report_error("Return statement doesn't match return type of procedure", line);
         }

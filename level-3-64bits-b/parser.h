@@ -75,6 +75,7 @@ class Parser: public ParserBase
         int lex();
 
 	bool return_statement_used_flag;				// Keeps track that atleast a procedure has atleast 1 return statement
+	bool non_empty_return_seen;				        // Keeps track whether a non-empty return statement was seen or not
     vector<int> goto_targets;
     vector<int> bb_blocks;
 	void bb_strictly_increasing_order_check(list<Basic_Block *> * bb_list, int bb_number); 
