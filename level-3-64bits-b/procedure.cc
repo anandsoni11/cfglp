@@ -220,13 +220,12 @@ Eval_Result & Procedure::evaluate(ostream & file_buffer, list<Eval_Result_Value*
 
 	file_buffer << "\n\n";
 	file_buffer << LOC_VAR_SPACE << "Local Variables (after evaluating) Function: << " << name << " >>\n";
-    eval_env.print(file_buffer);
-#define AST_SPACE "         "
+
     if(return_type!=void_data_type && result->get_result_enum() != void_result){
-        file_buffer << AST_SPACE << "return : ";
-        result->print(file_buffer);
-        file_buffer<<endl;
+        Eval_Result_Value * retval = convert_to_value(*result);
+        eval_env.put_variable_value(*retval, "return");
     }
+    eval_env.print(file_buffer);
 /*
     if(return_type!=void_data_type && result->get_result_enum() != void_result){
 	    eval_env.print_new(file_buffer, result, param_count);

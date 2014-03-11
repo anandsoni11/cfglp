@@ -443,28 +443,6 @@ void Function_Call_Ast::print_ast(ostream & file_buffer)
 	file_buffer << ")";
 }
 
-Eval_Result_Value * Function_Call_Ast::convert_to_value(Eval_Result & result){
-	Eval_Result_Value * i;
-	if (result.get_result_enum() == int_result)
-	{
-		i = new Eval_Result_Value_Int();
-        Value_Bundle bundle = result.get_value();
-	 	i->set_value(bundle);
-	}
-    else if (result.get_result_enum() == float_result)
-	{
-		i = new Eval_Result_Value_Float();
-        Value_Bundle bundle = result.get_value();
-	 	i->set_value(bundle);
-	}
-    else if (result.get_result_enum() == double_result)
-	{
-		i = new Eval_Result_Value_Double();
-        Value_Bundle bundle = result.get_value();
-	 	i->set_value(bundle);
-	}
-    return i;
-}
 
 Eval_Result & Function_Call_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
 {
@@ -707,17 +685,23 @@ void Return_Ast::print_ast(ostream & file_buffer)
 
 Eval_Result & Return_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
 {
-    print_ast(file_buffer);
 
     if(expression == NULL){
+        print_ast(file_buffer);
         Eval_Result & result = * new Eval_Result_Value_Int();
         result.set_result_enum(void_result);
         result.set_result_flag(return_flag);
         return result;
     }
 	Eval_Result &result = expression->evaluate(eval_env, file_buffer);
+
+	if (result.is_variable_defined() == false)
+		report_error("Variable should be defined to be on rhs", NOLINE);
 	//file_buffer << AST_SPACE << "Return <NOTHING>\n";
     //Set flag "RETURN"
+    //
+    print_ast(file_buffer);
+
     result.set_result_flag(return_flag); 
 	return result;
 }
@@ -816,4 +800,25 @@ bool is_compatible(Data_Type d1, Data_Type d2){
         return true;
     return false;
 }
-
+Eval_Result_Value * convert_to_value(Eval_Result & result){
+	Eval_Result_Value * i;
+	if (result.get_result_enum() == int_result)
+	{
+		i = new Eval_Result_Value_Int();
+        Value_Bundle bundle = result.get_value();
+	 	i->set_value(bundle);
+	}
+    else if (result.get_result_enum() == float_result)
+	{
+		i = new Eval_Result_Value_Float();
+        Value_Bundle bundle = result.get_value();
+	 	i->set_value(bundle);
+	}
+    else if (result.get_result_enum() == double_result)
+	{
+		i = new Eval_Result_Value_Double();
+        Value_Bundle bundle = result.get_value();
+	 	i->set_value(bundle);
+	}
+    return i;
+}
