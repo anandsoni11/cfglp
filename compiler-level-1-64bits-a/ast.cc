@@ -85,7 +85,7 @@ Data_Type Assignment_Ast::get_data_type()
 
 bool Assignment_Ast::check_ast(int line)
 {
-    //std::cout << lhs->get_data_type() << " " << rhs->get_data_type() <<endl;
+    //std::file_buffer << lhs->get_data_type() << " " << rhs->get_data_type() <<endl;
 	if (lhs->get_data_type() == rhs->get_data_type())
 	{
 		node_data_type = lhs->get_data_type();
@@ -122,7 +122,7 @@ Eval_Result & Assignment_Ast::evaluate(Local_Environment & eval_env, ostream & f
 	print_ast(file_buffer);
 
 	lhs->print_value(eval_env, file_buffer);
-    cout <<endl;
+    file_buffer <<endl;
 
 	return result;
 }
@@ -171,7 +171,7 @@ void Relational_Expr_Ast::print_ast(ostream & file_buffer)
 }
 
 int Relational_Expr_Ast::compare(int x, int y){
-    //cout << "operator is " << rel_op << "X is " << x << " Y is "<<y <<endl;
+    //file_buffer << "operator is " << rel_op << "X is " << x << " Y is "<<y <<endl;
     if(rel_op == 0) return (x < y);
     if(rel_op == 1) return (x > y);
     if(rel_op == 2) return (x >= y);
@@ -196,7 +196,7 @@ Eval_Result & Relational_Expr_Ast::evaluate(Local_Environment & eval_env, ostrea
 	// Print the result
     Eval_Result & result = *new Eval_Result_Value_Int();
     int compare_result = this->compare(lhs_result.get_value(), rhs_result.get_value());
-    //cout << "Compare result is "<< compare_result <<endl;
+    //file_buffer << "Compare result is "<< compare_result <<endl;
     result.set_value(compare_result);
 
 	return result;
@@ -399,9 +399,9 @@ void If_Ast::print_ast(ostream & file_buffer)
 {
 	file_buffer << AST_SPACE << "If_Else statement:";
     condition->print_ast(file_buffer);
-    cout <<endl; //this is required because rel_expr->print() doesn't end in newline
-    cout << AST_NODE_SPACE << "True Successor: "<< ((Goto_Ast*)goto_true)->get_successor() <<endl;
-    cout << AST_NODE_SPACE << "False Successor: "<< ((Goto_Ast*)goto_false)->get_successor() <<endl;
+    file_buffer <<endl; //this is required because rel_expr->print() doesn't end in newline
+    file_buffer << AST_NODE_SPACE << "True Successor: "<< ((Goto_Ast*)goto_true)->get_successor() <<endl;
+    file_buffer << AST_NODE_SPACE << "False Successor: "<< ((Goto_Ast*)goto_false)->get_successor() <<endl;
 }
 
 Eval_Result & If_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
@@ -416,11 +416,11 @@ Eval_Result & If_Ast::evaluate(Local_Environment & eval_env, ostream & file_buff
     int cond_result_value = condition_result.get_value();
     if(cond_result_value == 1){ //true statment
         successor =((Goto_Ast*)goto_true)->get_successor();
-        cout << AST_SPACE << "Condition True : Goto (BB "<< successor << ")"<<endl;
+        file_buffer << AST_SPACE << "Condition True : Goto (BB "<< successor << ")"<<endl;
     }
     else{ //false statment
         successor =((Goto_Ast*)goto_false)->get_successor();
-        cout << AST_SPACE << "Condition False : Goto (BB "<< successor << ")"<<endl;
+        file_buffer << AST_SPACE << "Condition False : Goto (BB "<< successor << ")"<<endl;
     }
     
     result.set_result_enum(go_to_result); //set the type to go_to_result enum
