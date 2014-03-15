@@ -1,0 +1,16 @@
+Submitted By:
+
+Ashish Sonone (110050022) and Anand Soni (110050037)
+
+1. We made changes in the following files:
+	scanner.ll, parser.yy
+
+2. In scanner.ll, following changes were made:
+	a. Added token declarations for 'if', 'goto' and 'else' tokens.
+	b. Added '!' to the list of META CHARS.
+	c. Added regular expression to ignore comments.
+
+3. In parser.yy, following changes were made:
+	a. Added grammar rules for 'expression', 'bool_expression', 'bool_operator', 'atomic_expression', 'basic_block_id', 'goto_statement' and 'if_statement'.
+	b. Modified rules for 'basic_block', 'executable_statement_list','assignment_statement'
+	c. Added new tokens: IF, ELSE and GOTO.
