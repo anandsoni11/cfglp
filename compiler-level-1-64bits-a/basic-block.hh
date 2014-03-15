@@ -46,6 +46,7 @@ public:
 	int get_bb_number();
 
 	void print_bb(ostream & file_buffer);
+    void check_if_return();
 
 	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
 };

@@ -39,185 +39,14 @@
 	Procedure * procedure;
 };
 
-%token <integer_value> INTEGER_NUMBER
-%token <string_value> NAME
-%token RETURN INTEGER IF ELSE GOTO
-/*%type <symbol_table> declaration_statement_list
-%type <symbol_entry> declaration_statement
-%type <basic_block_list> basic_block_list
-%type <basic_block> basic_block
-%type <ast_list> executable_statement_list
-%type <ast_list> assignment_statement_list
-%type <ast> assignment_statement
-%type <ast> variable
-%type <ast> constant*/
+%token <integer_value> NUM /* 257 */
+%token <integer_value> BB_ID  /* 258 */
+%token <string_value> NAME  /* 259 */
+%token RETURN INTEGER IF ELSE GOTO /* 260 - 264 */
 
-/********PRECEDENCE RULES*********/
-%start program
-
-%%
-
-program:
-	declaration_statement_list procedure_name
-	procedure_body
-    {}
-|
-	procedure_name
-	procedure_body
-    {}
-;
-
-expression:
-	bool_expression
-    {}
-;
-
-atomic_expression: /* TODO string */
-	variable
-    {}
-|
-	constant
-    {}
-;
-
-
-bool_operator:
-	'<'
-    {}
-|	
-	'>'
-    {}
-|	
-	'>' '='
-    {}
-|	
-	'<' '='
-    {}
-|	
-    '!' '='
-    {}
-|	
-    '=' '='
-    {}
-;
-
-bool_expression:
-	bool_expression bool_operator atomic_expression
-    {}
-|
-    atomic_expression
-    {}
-;
-
-procedure_name:
-	NAME '(' ')'
-    {}
-;
-
-procedure_body:
-	'{' declaration_statement_list
-	basic_block_list '}'
-    {}
-|
-	'{' basic_block_list '}'
-    {}
-;
-
-declaration_statement_list:
-	declaration_statement
-    {}
-|
-	declaration_statement_list declaration_statement
-    {}
-			;
-
-declaration_statement:
-	INTEGER NAME ';'
-    {}
-;
-
-basic_block_list:
-	basic_block_list basic_block
-    {}
-|
-	basic_block
-	
-    {}
-;
-
-basic_block_id:
-    '<' NAME INTEGER_NUMBER '>' 
-    {}
-;
-
-basic_block:
-    basic_block_id ':' executable_statement_list
-    {}
-;
-
-executable_statement_list:
-	assignment_statement_list
-    {}
-|
-	assignment_statement_list RETURN ';'
-    {}
-|
-	assignment_statement_list  if_statement
-    {}
-|
-	assignment_statement_list goto_statement
-    {}
-;
-
-assignment_statement_list:
-    {}
-|
-	assignment_statement_list assignment_statement
-    {}
-;
-
-assignment_statement:
-	variable '=' expression ';'
-    {}
-;
-
-goto_statement:
-    GOTO basic_block_id ';'
-    {}
-;
-
-if_statement:
-    IF '(' bool_expression ')'
-        goto_statement
-    ELSE
-        goto_statement
-        {}
-;
-variable:
-	NAME
-    {}
-;
-
-constant:
-	INTEGER_NUMBER
-    {}
-;
-/*%union 
-{
-	int integer_value;
-	std::string * string_value;
-	list<Ast *> * ast_list;
-	Ast * ast;
-	Symbol_Table * symbol_table;
-	Symbol_Table_Entry * symbol_entry;
-	Basic_Block * basic_block;
-	list<Basic_Block *> * basic_block_list;
-	Procedure * procedure;
-};
-
-%token <integer_value> INTEGER_NUMBER
-%token <string_value> NAME
-%token RETURN INTEGER 
+%right ASSIGN_OP /* 265 - 271 */
+%left <integer_value> NE EQ
+%left <integer_value> LT LE GT GE
 
 %type <symbol_table> declaration_statement_list
 %type <symbol_entry> declaration_statement
@@ -228,7 +57,13 @@ constant:
 %type <ast> assignment_statement
 %type <ast> variable
 %type <ast> constant
+%type <ast> expression
+%type <ast> rel_expression
+%type <ast> atomic_expression
+%type <ast> goto_statement
+%type <ast> if_statement
 
+/********PRECEDENCE RULES*********/
 %start program
 
 %%
@@ -277,8 +112,9 @@ procedure_body:
 		if (return_statement_used_flag == false)
 		{
 			int line = get_line_number();
-			report_error("Atleast 1 basic block should have a return statement", line);
+		//	report_error("Atleast 1 basic block should have a return statement", line);
 		}
+        check_goto_validity(); //check if every goto statement points to a block that exists
 
 		current_procedure->set_basic_block_list(*$4);
 
@@ -358,6 +194,7 @@ declaration_statement:
 	}
 ;
 
+
 basic_block_list:
 	basic_block_list basic_block
 	{
@@ -387,31 +224,25 @@ basic_block_list:
 	
 ;
 
-basic_block:
-	'<' NAME INTEGER_NUMBER '>' ':' executable_statement_list
-	{
-		if (*$2 != "bb")
-		{
-			int line = get_line_number();
-			report_error("Not basic block lable", line);
-		}
 
-		if ($3 < 2)
+basic_block:
+    BB_ID ':' executable_statement_list
+	{
+		if ($1 < 2)
 		{
 			int line = get_line_number();
 			report_error("Illegal basic block lable", line);
 		}
 
-		if ($6 != NULL)
-			$$ = new Basic_Block($3, *$6);
+		if ($3 != NULL)
+			$$ = new Basic_Block($1, *$3);
 		else
 		{
 			list<Ast *> * ast_list = new list<Ast *>;
-			$$ = new Basic_Block($3, *ast_list);
+			$$ = new Basic_Block($1, *ast_list);
 		}
+        bb_blocks.push_back($1);
 
-		delete $6;
-		delete $2;
 	}
 ;
 
@@ -435,6 +266,28 @@ executable_statement_list:
 
 		$$->push_back(ret);
 	}
+|
+	assignment_statement_list  if_statement
+    {
+		if ($1 != NULL)
+			$$ = $1;
+
+		else
+			$$ = new list<Ast *>;
+
+		$$->push_back($2);
+    }
+|
+	assignment_statement_list goto_statement
+    {
+		if ($1 != NULL)
+			$$ = $1;
+
+		else
+			$$ = new list<Ast *>;
+
+		$$->push_back($2);
+    }
 ;
 
 assignment_statement_list:
@@ -455,15 +308,7 @@ assignment_statement_list:
 ;
 
 assignment_statement:
-	variable '=' variable ';'
-	{
-		$$ = new Assignment_Ast($1, $3);
-
-		int line = get_line_number();
-		$$->check_ast(line);
-	}
-|
-	variable '=' constant ';'
+	variable ASSIGN_OP expression ';'
 	{
 		$$ = new Assignment_Ast($1, $3);
 
@@ -471,6 +316,81 @@ assignment_statement:
 		$$->check_ast(line);
 	}
 ;
+
+goto_statement:
+    GOTO BB_ID ';'
+    {
+        $$ = new Goto_Ast($2);
+        goto_targets.push_back($2);
+    }
+;
+
+if_statement:
+    IF '(' rel_expression ')'
+        goto_statement
+    ELSE
+        goto_statement
+        {
+            $$ = new If_Ast($3, $5, $7);
+        }
+;
+
+expression:
+	rel_expression
+    {
+        $$ = $1;
+    }
+;
+
+atomic_expression: /* TODO string */
+	variable
+    {
+        $$ = $1;
+    }
+|
+	constant
+    {
+        $$ = $1;
+    }
+;
+
+rel_expression:
+	rel_expression LT rel_expression
+    {
+        $$ = new Relational_Expr_Ast($1, $3, $2, int_data_type);
+    }
+|
+	rel_expression GT rel_expression
+    {
+        $$ = new Relational_Expr_Ast($1, $3, $2, int_data_type);
+    }
+|
+	rel_expression GE rel_expression
+    {
+        $$ = new Relational_Expr_Ast($1, $3, $2, int_data_type);
+    }
+|
+	rel_expression LE rel_expression
+    {
+        $$ = new Relational_Expr_Ast($1, $3, $2, int_data_type);
+    }
+|
+	rel_expression NE rel_expression
+    {
+        $$ = new Relational_Expr_Ast($1, $3, $2, int_data_type);
+    }
+|
+	rel_expression EQ rel_expression
+    {
+        $$ = new Relational_Expr_Ast($1, $3, $2, int_data_type);
+    }
+|
+    atomic_expression
+    {
+        $$ = $1;
+    }
+;
+
 
 variable:
 	NAME
@@ -496,8 +416,8 @@ variable:
 ;
 
 constant:
-	INTEGER_NUMBER
+	NUM
 	{
 		$$ = new Number_Ast<int>($1, int_data_type);
 	}
-;*/
+;

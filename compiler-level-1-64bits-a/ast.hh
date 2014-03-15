@@ -24,10 +24,15 @@
 #ifndef AST_HH
 #define AST_HH
 
-#include<string>
+#include <string>
+#include <map>
 
 #define AST_SPACE "         "
 #define AST_NODE_SPACE "            "
+#define COND_SPACE "            "
+#define COND_NODE_SPACE "               "
+
+static map<int, string> rel_operators_map = {{0, "LT"}, {1, "GT"}, {2, "GE"}, {3, "LE"}, {4, "NE"}, {5, "EQ"}};
 
 using namespace std;
 
@@ -63,6 +68,25 @@ public:
 
 	Data_Type get_data_type();
 	bool check_ast(int line);
+
+	void print_ast(ostream & file_buffer);
+
+	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
+};
+
+class Relational_Expr_Ast:public Ast
+{
+	Ast * lhs;
+    int rel_op;
+	Ast * rhs;
+
+public:
+	Relational_Expr_Ast(Ast * temp_lhs, Ast * temp_rhs, int temp_op, Data_Type constant_data_type);
+	~Relational_Expr_Ast();
+
+	Data_Type get_data_type();
+	bool check_ast(int line);
+    int compare(int x, int y);
 
 	void print_ast(ostream & file_buffer);
 
@@ -110,10 +134,39 @@ class Return_Ast:public Ast
 public:
 	Return_Ast();
 	~Return_Ast();
+	Data_Type get_data_type();
 
 	void print_ast(ostream & file_buffer);
 
 	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
 };
 
+class Goto_Ast:public Ast
+{
+    int successor;
+
+public:
+	Goto_Ast(int succ);
+	~Goto_Ast();
+
+	void print_ast(ostream & file_buffer);
+    int get_successor();
+
+	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
+};
+
+class If_Ast:public Ast
+{
+	Ast * condition;
+	Ast * goto_true;
+	Ast * goto_false;
+
+public:
+	If_Ast(Ast * temp_condition, Ast * temp_goto_true, Ast* temp_goto_false);
+	~If_Ast();
+
+	void print_ast(ostream & file_buffer);
+
+	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
+};
 #endif

@@ -39,6 +39,7 @@
 using namespace std;
 
 #include <string.h>
+#include <vector>
 
 #include"error-display.hh"
 #include"user-options.hh"
@@ -74,7 +75,10 @@ class Parser: public ParserBase
         int lex();
 
 	bool return_statement_used_flag;				// Keeps track that atleast a procedure has atleast 1 return statement
+    vector<int> goto_targets;
+    vector<int> bb_blocks;
 	void bb_strictly_increasing_order_check(list<Basic_Block *> * bb_list, int bb_number); 
+    void check_goto_validity();
         
 	void executeAction(int ruleNr);
         void errorRecovery();
