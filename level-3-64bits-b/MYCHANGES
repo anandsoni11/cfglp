@@ -3,13 +3,16 @@ Submitted By:
 Ashish Sonone (110050022) and Anand Soni (110050037)
 
 1. We made changes in the following files:
-	scanner.ll, parser.yy
+	parser.yy, procedure.cc, procedure.hh, ast.hh, ast.cc
 
-2. In scanner.ll, following changes were made:
-	a. Added token declarations for VOID.
-    b. Added ',' to META CHARS.
+2. In parser.yy, following changes were made:
+	a. Added fuction calls in grammar declaration to execute -ast and -eval operations.
+    b. Added checks and validation rules for type checking and protoytpe.
 
-3. In parser.yy, following changes were made:
-    a. Modified rules for 'program' non-terminal.
-    b. Added grammar rules for function_declaration_list, function_declararion, function_definition_list, function_definition, decl_arg_list, ne_decl_arg_list, general_statement, function_call, arg_list and ne_arg_list.
-    c. Modified rules for atomic_expression and executable_statement_list.
+3. In procedure.cc, procedure.hh the following changes were made:
+    a. Added new function get_symbol_table(), set_param_count(), validate_arg_list(..).
+    b. Modified evaluate so that it now takes function call arguments
+
+6. In ast.cc and ast.hh, following modifications were made:
+    a. Created a new Function_Call_Ast to handle function calls.
+    b. Modified Return_Ast to check for return types of functions.
