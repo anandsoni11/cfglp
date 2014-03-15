@@ -16,17 +16,9 @@ cfgFiles=[]
 for f in correct_files:
     command = "make -f Makefile.cfg FILE=" + f+ " >/dev/null";
     os.system(command);
-    #cfgFiles.append(path+"/"+f+"s306.cfg");
+    cfgFiles.append(path+"/"+f+"s306.cfg"); 
 
-for f in files:
-    fileName,fileExt = os.path.splitext( path + f)
-    if( fileExt == '.cfg'):
-        cfgFiles.append(path + "/"+ f)
-
-
-print(cfgFiles);
 print("Done generating cfg files\n");
-
 
 for f in cfgFiles:
     print("Testing file  " + f ); 
@@ -34,23 +26,23 @@ for f in cfgFiles:
     os.system(command) 
     command = "./cfglp -tokens -d " + f + " > generated " 
     os.system(command)
-    os.system("diff -Bb expected generated")
+    os.system("diff -B expected generated")
 
     command = "./cfglp64 -ast -d " + f + " > expected_ast " 
     os.system(command) 
     command = "./cfglp -ast -d " + f + " > generated_ast " 
     os.system(command)
-    os.system("diff -Bb expected_ast generated_ast")
+    os.system("diff -B expected_ast generated_ast")
 
     command = "./cfglp64 -eval -d " + f + " > expected_eval " 
     os.system(command) 
     command = "./cfglp -eval -d " + f + " > generated_eval " 
     os.system(command)
-    os.system("diff -Bb expected_eval generated_eval")
+    os.system("diff -B expected_eval generated_eval")
 
 print("\n*****Done with the checking cfg files EXCEPT infi loops!!***\n")
 
-exit(0)
+#exit(0)
 
 error_files=[]
 for f in files:
