@@ -41,14 +41,17 @@ class User_Options
 	bool show_ast_selected;
 	bool do_eval_selected;
 	bool demo_mode_selected;
+	bool show_icode_selected; //
 
 	ostream * tokens_buffer;
 	ostream * ast_buffer;
 	ostream * output_buffer;
+	ostream * icode_buffer; //
 
 	ofstream tokens_file_buffer;
 	ofstream ast_file_buffer;
 	ofstream output_file_buffer;
+	ofstream icode_file_buffer; //
 
 	FILE * file_buffer;
 
@@ -60,17 +63,20 @@ public:
 	bool is_show_ast_selected();
 	bool is_do_eval_selected();
 	bool is_demo_mode_selected();
+	bool is_show_icode_selected(); //
 
 	string process_user_command_options(int argc, char * argv[]);
 	string get_file_name();
 
 	void create_tokens_buffer();
 	void create_ast_buffer();
+	void create_icode_buffer();  //
 	void create_output_buffer();
 
 	ostream & get_tokens_buffer();
 	ostream & get_ast_buffer();
 	ostream & get_output_buffer();
+	ostream & get_icode_buffer(); //
 };
 
 extern User_Options command_options;

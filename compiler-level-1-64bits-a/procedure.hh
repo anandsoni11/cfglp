@@ -53,6 +53,7 @@ public:
 	Symbol_Table_Entry & get_symbol_table_entry(string variable_name);
 
 	void print_ast(ostream & file_buffer);
+	void print_icode(ostream & file_buffer);
 
 	Basic_Block * get_next_bb(Basic_Block & current_bb);
     Basic_Block * get_target_bb(int target); //target is the basic block number

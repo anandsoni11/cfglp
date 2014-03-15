@@ -38,6 +38,7 @@ using namespace std;
 
 Program program_object;
 Local_Environment interpreter_global_table;
+GPR cpu_gpr; //instance of gpr of the cpu
 
 Program::Program()
 {}
@@ -105,6 +106,24 @@ void Program::print_ast()
 	else
 	{
 		main->print_ast(ast_buffer);
+	}
+}
+
+void Program::print_icode()
+{
+	command_options.create_icode_buffer();
+	ostream & icode_buffer = command_options.get_icode_buffer();
+
+	//icode_buffer << "Program:\n";
+
+	Procedure * main = get_main_procedure(icode_buffer);
+	if (main == NULL)
+		report_error("No main function found in the program", NOLINE);
+
+	else
+	{
+        //icode_buffer << "Finally here ! " <<endl;
+		main->print_icode(icode_buffer);
 	}
 }
 

@@ -26,6 +26,7 @@
 
 #include <string>
 #include <map>
+#include "gpr.hh"
 
 #define AST_SPACE "         "
 #define AST_NODE_SPACE "            "
@@ -33,6 +34,7 @@
 #define COND_NODE_SPACE "               "
 
 static map<int, string> rel_operators_map = {{0, "LT"}, {1, "GT"}, {2, "GE"}, {3, "LE"}, {4, "NE"}, {5, "EQ"}};
+static map<int, string> rel_op_instr_map = {{0, "slt"}, {1, "sgt"}, {2, "sge"}, {3, "sle"}, {4, "sne"}, {5, "seq"}};
 
 using namespace std;
 
@@ -50,6 +52,8 @@ public:
 	virtual bool check_ast(int line);
 
 	virtual void print_ast(ostream & file_buffer) = 0;
+	virtual void print_self(ostream & file_buffer);
+	virtual Register_Enum print_icode(ostream & file_buffer) = 0;
 	virtual void print_value(Local_Environment & eval_env, ostream & file_buffer);
 
 	virtual Eval_Result & get_value_of_evaluation(Local_Environment & eval_env);
@@ -70,6 +74,7 @@ public:
 	bool check_ast(int line);
 
 	void print_ast(ostream & file_buffer);
+	Register_Enum print_icode(ostream & file_buffer);
 
 	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
 };
@@ -89,6 +94,7 @@ public:
     int compare(int x, int y);
 
 	void print_ast(ostream & file_buffer);
+	Register_Enum print_icode(ostream & file_buffer);
 
 	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
 };
@@ -105,6 +111,8 @@ public:
 	Data_Type get_data_type();
 
 	void print_ast(ostream & file_buffer);
+	void print_self(ostream & file_buffer);
+	Register_Enum print_icode(ostream & file_buffer);
 
 	void print_value(Local_Environment & eval_env, ostream & file_buffer);
 	Eval_Result & get_value_of_evaluation(Local_Environment & eval_env);
@@ -124,6 +132,7 @@ public:
 	Data_Type get_data_type();
 
 	void print_ast(ostream & file_buffer);
+	Register_Enum print_icode(ostream & file_buffer);
 
 	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
 };
@@ -137,6 +146,7 @@ public:
 	Data_Type get_data_type();
 
 	void print_ast(ostream & file_buffer);
+	Register_Enum print_icode(ostream & file_buffer);
 
 	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
 };
@@ -150,6 +160,7 @@ public:
 	~Goto_Ast();
 
 	void print_ast(ostream & file_buffer);
+	Register_Enum print_icode(ostream & file_buffer);
     int get_successor();
 
 	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
@@ -166,6 +177,7 @@ public:
 	~If_Ast();
 
 	void print_ast(ostream & file_buffer);
+	Register_Enum print_icode(ostream & file_buffer);
 
 	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
 };

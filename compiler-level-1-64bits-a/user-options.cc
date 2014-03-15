@@ -43,6 +43,7 @@ User_Options::User_Options()
 	show_ast_selected = false;
 	do_eval_selected = false;
 	demo_mode_selected = false;
+	show_icode_selected = false;
 } 
 
 User_Options::~User_Options()
@@ -79,6 +80,11 @@ bool User_Options::is_demo_mode_selected()
 	return demo_mode_selected;
 }
 
+bool User_Options::is_show_icode_selected()
+{
+	return show_icode_selected;
+}
+
 void User_Options::create_tokens_buffer()
 {
 	if (!show_tokens_selected)
@@ -111,6 +117,17 @@ void User_Options::create_output_buffer()
 		output_buffer = &output_file_buffer; 
 }
 
+void User_Options::create_icode_buffer(){  //
+	if (!show_icode_selected)
+		report_internal_error("Show ICODE option not set");
+
+	if (demo_mode_selected)
+		icode_buffer = &cout;
+
+	else
+		icode_buffer = &icode_file_buffer; 
+}
+
 ostream & User_Options::get_tokens_buffer()
 {
 	if (tokens_buffer == NULL)
@@ -125,6 +142,14 @@ ostream & User_Options::get_ast_buffer()
 		ast_buffer = &cout;
 
 	return *ast_buffer;
+}
+
+ostream & User_Options::get_icode_buffer()
+{
+	if (icode_buffer == NULL)
+		icode_buffer = &cout;
+
+	return *icode_buffer;
 }
 
 ostream & User_Options::get_output_buffer()
@@ -145,7 +170,7 @@ string User_Options::process_user_command_options(int argc, char * argv[])
 	string input_file_name;
 
 	bool user_input_file_entered = false;
-	string user_input_file_name, tokens_file_name, ast_file_name, output_file_name;
+	string user_input_file_name, tokens_file_name, ast_file_name, icode_file_name, output_file_name;
 	char * user_input_file_c_string = NULL;
 
 	const string usage = "\n     Usage: cfglp [options] [file]\n\
@@ -154,6 +179,13 @@ string User_Options::process_user_command_options(int argc, char * argv[])
 			-tokens   Show the tokens in file.toks (or out.toks)\n\
 			-ast      Show abstract syntax trees in file.ast (or out.ast)\n\
 			-eval     Interpret the program and show a trace of the execution in file.eval (or out.eval)\n\
+			-symtab   Show the symbol table of delcarations in file.sy, (or out.sym)\n\
+			-program  Show the complete program read by cfglp in file.prog (or out.prog)\n\
+				(-program option cannot be given with -tokens, -ast, or -symtab)\n\
+			-compile  Compile the program and generate spim code in file.spim (or out.spim)\n\
+			-lra      Do local register allocation to avoid redundant loads within a basic block\n\
+			-icode    Compile the program and show the intermediate code in file.ic (or out.ic)\n\
+				(-eval and -icode options are mutually exclusive\n\
 			-d        Demo version. Use stdout for the outputs instead of files\n\n";
 
 	for (int i = 1; i < argc; i++)
@@ -169,6 +201,9 @@ string User_Options::process_user_command_options(int argc, char * argv[])
 
 			else if (!strcmp(option,"-ast")) 
 				show_ast_selected = true;
+
+			else if (!strcmp(option,"-icode")) //
+				show_icode_selected = true;
 			
 			else if (!strcmp(option,"-eval"))
 				do_eval_selected = true;
@@ -213,6 +248,7 @@ string User_Options::process_user_command_options(int argc, char * argv[])
 
 	tokens_file_name = user_input_file_name + ".toks"; 
 	ast_file_name = user_input_file_name + ".ast"; 
+    icode_file_name = user_input_file_name + ".ic";
 
 	if (do_eval_selected)
 		output_file_name = user_input_file_name + ".eval"; 
@@ -220,9 +256,11 @@ string User_Options::process_user_command_options(int argc, char * argv[])
 	remove (tokens_file_name.c_str()); 
 	remove (ast_file_name.c_str()); 
 	remove (output_file_name.c_str()); 
+	remove (icode_file_name.c_str()); 
 	remove ("out.toks");
 	remove ("out.ast");
 	remove ("out.eval");
+	remove ("out.ic");
 
 	if (demo_mode_selected == false)
 	{
@@ -232,6 +270,9 @@ string User_Options::process_user_command_options(int argc, char * argv[])
 		if (show_ast_selected)
 			ast_file_buffer.open(ast_file_name.c_str()); 
 
+		if (show_icode_selected)
+			icode_file_buffer.open(icode_file_name.c_str()); 
+
 		output_file_buffer.open(output_file_name.c_str()); 
 
 		if (show_tokens_selected && !tokens_file_buffer)
@@ -239,6 +280,9 @@ string User_Options::process_user_command_options(int argc, char * argv[])
 
 		if (show_ast_selected && !ast_file_buffer)
 		        report_internal_error("Unable to open output file for AST");
+
+		if (show_icode_selected && !icode_file_buffer)
+		        report_internal_error("Unable to open output file for icode");
 
 		if(do_eval_selected && !output_file_buffer)
 			report_internal_error("Unable to open output file");

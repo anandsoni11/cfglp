@@ -52,6 +52,7 @@ public:
 	Symbol_Table_Entry & get_symbol_table_entry(string variable);
 
 	void print_ast();
+	void print_icode();
 
 	Procedure * get_main_procedure(ostream & file_buffer);
 

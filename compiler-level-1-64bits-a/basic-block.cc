@@ -51,6 +51,7 @@ int Basic_Block::get_bb_number()
 {
 	return id_number;
 }
+
 void Basic_Block::print_bb(ostream & file_buffer)
 {
 	file_buffer << BB_SPACE << "Basic_Block " << id_number << "\n";
@@ -59,6 +60,18 @@ void Basic_Block::print_bb(ostream & file_buffer)
 	for(i = statement_list.begin(); i != statement_list.end(); i++)
 		(*i)->print_ast(file_buffer);
 }
+
+void Basic_Block::print_icode(ostream & file_buffer)
+{
+	file_buffer << "label" << id_number << ":\n";
+
+	list<Ast *>::iterator i;
+	for(i = statement_list.begin(); i != statement_list.end(); i++)
+		(*i)->print_icode(file_buffer);
+
+    file_buffer << endl;
+}
+
 void  Basic_Block::check_if_return(){
     Ast * last = statement_list.back();
     if(last->get_data_type() != return_data_type){

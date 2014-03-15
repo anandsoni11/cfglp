@@ -49,6 +49,11 @@ Data_Type Ast::get_data_type()
 	report_internal_error("Should not reach, Ast : get_data_type");
 }
 
+void Ast::print_self(ostream & file_buffer)
+{
+	report_internal_error("Should not reach, Ast : print_self, This is meant only for Name Ast");
+}
+
 void Ast::print_value(Local_Environment & eval_env, ostream & file_buffer)
 {
 	report_internal_error("Should not reach, Ast : print_value");
@@ -106,6 +111,18 @@ void Assignment_Ast::print_ast(ostream & file_buffer)
 	file_buffer << AST_NODE_SPACE << "RHS (";
 	rhs->print_ast(file_buffer);
 	file_buffer << ")\n";
+}
+
+
+Register_Enum Assignment_Ast::print_icode(ostream & file_buffer)
+{
+    Register_Enum r_reg = rhs->print_icode(file_buffer); //print iLoad stmts
+    file_buffer << " store: " ;
+    lhs->print_self(file_buffer); //only for NameAst
+    file_buffer <<" <- " << reg_str_map[r_reg] << endl;
+
+    cpu_gpr.free(r_reg); //free the reg containing rhs
+    return zero;
 }
 
 Eval_Result & Assignment_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
@@ -170,6 +187,18 @@ void Relational_Expr_Ast::print_ast(ostream & file_buffer)
 	file_buffer << ")";
 }
 
+Register_Enum Relational_Expr_Ast::print_icode(ostream & file_buffer){
+    Register_Enum lr = lhs->print_icode(file_buffer);
+    Register_Enum rr = rhs->print_icode(file_buffer);
+    Register_Enum dest = cpu_gpr.get_first_icode_free();
+
+    file_buffer << " " << rel_op_instr_map[rel_op] <<": " << reg_str_map[dest] << " <- ";
+    file_buffer << reg_str_map[lr] << " , " << reg_str_map[rr] <<endl;
+    cpu_gpr.free(lr);
+    cpu_gpr.free(rr);
+    return dest;
+}
+
 int Relational_Expr_Ast::compare(int x, int y){
     //file_buffer << "operator is " << rel_op << "X is " << x << " Y is "<<y <<endl;
     if(rel_op == 0) return (x < y);
@@ -221,6 +250,18 @@ Data_Type Name_Ast::get_data_type()
 void Name_Ast::print_ast(ostream & file_buffer)
 {
 	file_buffer << "Name : " << variable_name;
+}
+
+Register_Enum Name_Ast::print_icode(ostream & file_buffer)
+{
+    Register_Enum dest = cpu_gpr.get_first_icode_free();
+    file_buffer << " load:  " << reg_str_map[dest] << " <- " << variable_name << endl;
+    return dest;
+}
+
+void Name_Ast::print_self(ostream & file_buffer)
+{
+    file_buffer << variable_name;
 }
 
 void Name_Ast::print_value(Local_Environment & eval_env, ostream & file_buffer)
@@ -314,6 +355,14 @@ void Number_Ast<DATA_TYPE>::print_ast(ostream & file_buffer)
 }
 
 template <class DATA_TYPE>
+Register_Enum Number_Ast<DATA_TYPE>::print_icode(ostream & file_buffer)
+{
+    Register_Enum dest = cpu_gpr.get_first_icode_free();
+    file_buffer << " iLoad: " << reg_str_map[dest] << " <- " << constant << endl;
+    return dest;
+}
+
+template <class DATA_TYPE>
 Eval_Result & Number_Ast<DATA_TYPE>::evaluate(Local_Environment & eval_env, ostream & file_buffer)
 {
 	if (node_data_type == int_data_type)
@@ -345,6 +394,11 @@ void Return_Ast::print_ast(ostream & file_buffer)
 	file_buffer << AST_SPACE << "Return <NOTHING>\n";
 }
 
+Register_Enum Return_Ast::print_icode(ostream & file_buffer)
+{
+    return zero;
+}
+
 Eval_Result & Return_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
 {
 	file_buffer << AST_SPACE << "Return <NOTHING>\n";
@@ -367,6 +421,12 @@ void Goto_Ast::print_ast(ostream & file_buffer)
 {
 	file_buffer << AST_SPACE << "Goto statement:\n";
 	file_buffer << AST_NODE_SPACE"Successor: "<< successor <<endl;
+}
+
+Register_Enum Goto_Ast::print_icode(ostream & file_buffer)
+{
+    file_buffer << " goto label" << successor <<endl;
+    return zero;
 }
 
 int Goto_Ast::get_successor(){
@@ -402,6 +462,14 @@ void If_Ast::print_ast(ostream & file_buffer)
     file_buffer <<endl; //this is required because rel_expr->print() doesn't end in newline
     file_buffer << AST_NODE_SPACE << "True Successor: "<< ((Goto_Ast*)goto_true)->get_successor() <<endl;
     file_buffer << AST_NODE_SPACE << "False Successor: "<< ((Goto_Ast*)goto_false)->get_successor() <<endl;
+}
+Register_Enum If_Ast::print_icode(ostream & file_buffer)
+{
+    Register_Enum dest = condition->print_icode(file_buffer);
+    file_buffer << " bne: " << reg_str_map[dest] <<" , " << reg_str_map[zero] << " :";
+    goto_true->print_icode(file_buffer);
+    goto_false->print_icode(file_buffer);
+    return zero;
 }
 
 Eval_Result & If_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
