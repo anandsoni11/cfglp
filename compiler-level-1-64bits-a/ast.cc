@@ -469,6 +469,8 @@ Register_Enum If_Ast::print_icode(ostream & file_buffer)
     file_buffer << " bne: " << reg_str_map[dest] <<" , " << reg_str_map[zero] << " :";
     goto_true->print_icode(file_buffer);
     goto_false->print_icode(file_buffer);
+
+    cpu_gpr.free(dest); //free the reg that held condition
     return zero;
 }
 
