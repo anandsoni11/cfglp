@@ -78,8 +78,11 @@ class Parser: public ParserBase
         void error(char const *msg);
         int lex();
 
+        vector<int> goto_targets;
+    	vector<int> bb_blocks;
+
 	void bb_strictly_increasing_order_check(list<Basic_Block *> * bb_list, int bb_number); 
-        
+    void check_goto_validity();
 	void executeAction(int ruleNr);
         void errorRecovery();
         int lookup(bool recovery);

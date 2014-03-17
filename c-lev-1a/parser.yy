@@ -42,8 +42,11 @@
 
 %token <integer_value> INTEGER_NUMBER BBNUM
 %token <string_value> NAME
-%token RETURN INTEGER 
-%token ASSIGN
+%token RETURN INTEGER IF ELSE GOTO /* 260 - 264 */
+%right ASSIGN_OP /* 265 - 271 */
+%left <integer_value> NE EQ
+%left <integer_value> LT LE GT GE
+
 
 %type <symbol_table> optional_variable_declaration_list
 %type <symbol_table> variable_declaration_list
@@ -56,6 +59,12 @@
 %type <ast> assignment_statement
 %type <ast> variable
 %type <ast> constant
+
+%type <ast> expression
+%type <ast> rel_expression
+%type <ast> atomic_expression
+%type <ast> goto_statement
+%type <ast> if_statement
 
 %start program
 
@@ -134,6 +143,7 @@ procedure_definition:
 		CHECK_INVARIANT((current_procedure != NULL), "Current procedure cannot be null");
 		CHECK_INVARIANT((bb_list != NULL), "Basic block list cannot be null");
 
+		check_goto_validity(); //check if every goto statement points to a block that exists
 		current_procedure->set_basic_block_list(*bb_list);
 	}
 	}
@@ -305,7 +315,7 @@ basic_block:
 			list<Ast *> * ast_list = new list<Ast *>;
 			bb->set_ast_list(*ast_list);
 		}
-
+		bb_blocks.push_back($1);
 		$$ = bb;
 	}
 	}
@@ -339,7 +349,36 @@ executable_statement_list:
 		$$ = exe_list;
 	}
 	}
+|
+	assignment_statement_list  if_statement
+    {
+    if (NOT_ONLY_PARSE)
+	{
+		if ($1 != NULL)
+			$$ = $1;
+
+		else
+			$$ = new list<Ast *>;
+
+		$$->push_back($2);
+    }
+    }
+|
+	assignment_statement_list goto_statement
+    {
+    if (NOT_ONLY_PARSE)
+	{
+		if ($1 != NULL)
+			$$ = $1;
+
+		else
+			$$ = new list<Ast *>;
+
+		$$->push_back($2);
+    }
+    }
 ;
+
 
 assignment_statement_list:
 	{
@@ -372,28 +411,13 @@ assignment_statement_list:
 	}
 ;
 
+
 assignment_statement:
-	variable ASSIGN variable ';'
+	variable ASSIGN_OP expression ';'
 	{
 	if (NOT_ONLY_PARSE)
 	{
-		CHECK_INVARIANT((($1 != NULL) && ($3 != NULL)), "lhs/rhs cannot be null");
 
-		Ast * lhs = $1;
-		Ast * rhs = $3;
-
-		Ast * assign = new Assignment_Ast(lhs, rhs, get_line_number());
-
-		assign->check_ast();
-
-		$$ = assign;
-	}
-	}
-|
-	variable ASSIGN constant ';'
-	{
-	if (NOT_ONLY_PARSE)
-	{
 		CHECK_INVARIANT((($1 != NULL) && ($3 != NULL)), "lhs/rhs cannot be null");
 
 		Ast * lhs = $1;
@@ -407,6 +431,119 @@ assignment_statement:
 	}
 	}
 ;
+
+
+goto_statement:
+    GOTO BBNUM ';'
+    {
+    if (NOT_ONLY_PARSE)
+	{
+        $$ = new Goto_Ast($2, get_line_number());
+        goto_targets.push_back($2);  //TODO
+    }
+    }
+;
+
+if_statement:
+    IF '(' rel_expression ')'
+        goto_statement
+    ELSE
+        goto_statement
+    {
+    if (NOT_ONLY_PARSE)
+	{
+        $$ = new If_Ast($3, $5, $7, get_line_number());
+    }
+    }
+;
+
+expression:
+	rel_expression
+    {
+    if (NOT_ONLY_PARSE)
+	{
+        $$ = $1;
+    }
+    }
+;
+
+atomic_expression: /* TODO string */
+	variable
+    {
+    if (NOT_ONLY_PARSE)
+	{
+        $$ = $1;
+    }
+    }
+|
+	constant
+    {
+    if (NOT_ONLY_PARSE)
+	{
+        $$ = $1;
+    }
+    }
+;
+
+
+rel_expression:
+	rel_expression LT rel_expression
+    {
+    if (NOT_ONLY_PARSE)
+	{
+        $$ = new Relational_Expr_Ast($1, $3, $2, get_line_number());
+    }
+    }
+|
+	rel_expression GT rel_expression
+    {
+    if (NOT_ONLY_PARSE)
+	{
+        $$ = new Relational_Expr_Ast($1, $3, $2, get_line_number());
+    }
+    }
+|
+	rel_expression GE rel_expression
+    {
+    if (NOT_ONLY_PARSE)
+	{
+        $$ = new Relational_Expr_Ast($1, $3, $2, get_line_number());
+    }
+    }
+|
+	rel_expression LE rel_expression
+    {
+    if (NOT_ONLY_PARSE)
+	{
+        $$ = new Relational_Expr_Ast($1, $3, $2, get_line_number());
+    }
+    }
+|
+	rel_expression NE rel_expression
+    {
+   	if (NOT_ONLY_PARSE)
+	{
+        $$ = new Relational_Expr_Ast($1, $3, $2, get_line_number());
+    }
+    }
+|
+	rel_expression EQ rel_expression
+    {
+    if (NOT_ONLY_PARSE)
+	{
+        $$ = new Relational_Expr_Ast($1, $3, $2, get_line_number());
+    }
+    }
+|
+    atomic_expression
+    {
+    if (NOT_ONLY_PARSE)
+	{
+        $$ = $1;
+    }
+    }
+;
+
 
 variable:
 	NAME

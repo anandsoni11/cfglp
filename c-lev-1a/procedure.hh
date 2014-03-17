@@ -58,6 +58,7 @@ public:
 
 	Basic_Block * get_next_bb(Basic_Block & current_bb);
 	Basic_Block & get_start_basic_block();
+	Basic_Block * get_target_bb(int target); //target is the basic block number
 
 	Eval_Result & evaluate(ostream & file_buffer);
 

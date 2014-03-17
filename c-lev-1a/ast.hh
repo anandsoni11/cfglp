@@ -29,12 +29,18 @@
 #include<iomanip>
 #include<typeinfo>
 #include<list>
+#include <map>
 
 #define AST_SPACE "         "
 #define AST_NODE_SPACE "            "
 #define AST_SUB_NODE_SPACE "               "
+#define COND_SPACE "            "
+#define COND_NODE_SPACE "               "
 
 using namespace std;
+
+
+static map<int, string> rel_operators_map = {{0, "LT"}, {1, "GT"}, {2, "GE"}, {3, "LE"}, {4, "NE"}, {5, "EQ"}};
 
 class Ast;
 
@@ -91,6 +97,28 @@ public:
 	Code_For_Ast & compile();
 	Code_For_Ast & compile_and_optimize_ast(Lra_Outcome & lra);
 };
+
+class Relational_Expr_Ast:public Ast
+{
+	Ast * lhs;
+    int rel_op;
+	Ast * rhs;
+
+public:
+	Relational_Expr_Ast(Ast * temp_lhs, Ast * temp_rhs, int temp_op, int line);
+	~Relational_Expr_Ast();
+
+	bool check_ast();
+    int compare(int x, int y);
+
+	void print(ostream & file_buffer);
+
+	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
+
+	Code_For_Ast & compile();
+	Code_For_Ast & compile_and_optimize_ast(Lra_Outcome & lra);
+};
+
 
 class Name_Ast:public Ast
 {
@@ -149,4 +177,36 @@ public:
 	Code_For_Ast & compile_and_optimize_ast(Lra_Outcome & lra);
 };
 
+class Goto_Ast:public Ast
+{
+    int successor;
+
+public:
+	Goto_Ast(int succ, int line);
+	~Goto_Ast();
+
+	void print(ostream & file_buffer);
+    int get_successor();
+
+	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
+	Code_For_Ast & compile();
+	Code_For_Ast & compile_and_optimize_ast(Lra_Outcome & lra);
+};
+
+class If_Ast:public Ast
+{
+	Ast * condition;
+	Ast * goto_true;
+	Ast * goto_false;
+
+public:
+	If_Ast(Ast * temp_condition, Ast * temp_goto_true, Ast* temp_goto_false, int line);
+	~If_Ast();
+
+	void print(ostream & file_buffer);
+
+	Eval_Result & evaluate(Local_Environment & eval_env, ostream & file_buffer);
+	Code_For_Ast & compile();
+	Code_For_Ast & compile_and_optimize_ast(Lra_Outcome & lra);
+};
 #endif

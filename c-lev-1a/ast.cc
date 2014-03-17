@@ -227,6 +227,151 @@ Code_For_Ast & Assignment_Ast::compile_and_optimize_ast(Lra_Outcome & lra)
 	return *assign_stmt;
 }
 
+////////////////////////////////////////////////////////////////
+
+Relational_Expr_Ast::Relational_Expr_Ast(Ast * temp_lhs, Ast * temp_rhs, int temp_op, int line)
+{
+	lhs = temp_lhs;
+	rhs = temp_rhs;
+
+	ast_num_child = binary_arity;
+	rel_op = temp_op;
+	lineno = line;
+}
+
+Relational_Expr_Ast::~Relational_Expr_Ast()
+{
+	delete lhs;
+	delete rhs;
+}
+
+bool Relational_Expr_Ast::check_ast()
+{
+	CHECK_INVARIANT((rhs != NULL), "Rhs of Expression cannot be null");
+	CHECK_INVARIANT((lhs != NULL), "Lhs of Expression cannot be null");
+
+	if (lhs->get_data_type() == rhs->get_data_type())
+	{
+		node_data_type = lhs->get_data_type();
+		return true;
+	}
+
+	CHECK_INVARIANT(CONTROL_SHOULD_NOT_REACH, 
+		"Expression statement data type not compatible");
+}
+
+void Relational_Expr_Ast::print(ostream & file_buffer)
+{
+	file_buffer <<"\n"<<COND_SPACE << "Condition: " << rel_operators_map[rel_op] <<endl;
+
+	file_buffer << COND_NODE_SPACE"LHS (";
+	lhs->print(file_buffer);
+	file_buffer << ")\n";
+
+	file_buffer << COND_NODE_SPACE << "RHS (";
+	rhs->print(file_buffer);
+	file_buffer << ")";
+}
+
+int Relational_Expr_Ast::compare(int x, int y){
+    //file_buffer << "operator is " << rel_op << "X is " << x << " Y is "<<y <<endl;
+    if(rel_op == 0) return (x < y);
+    if(rel_op == 1) return (x > y);
+    if(rel_op == 2) return (x >= y);
+    if(rel_op == 3) return (x <= y);
+    if(rel_op == 4) return (x != y);
+    if(rel_op == 5) return (x == y);
+}
+
+
+Eval_Result & Relational_Expr_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
+{
+	CHECK_INVARIANT((rhs != NULL), "Rhs of Expression cannot be null");
+	Eval_Result & rhs_result = rhs->evaluate(eval_env, file_buffer);
+
+	CHECK_INPUT_AND_ABORT(rhs_result.is_variable_defined(), "Variable should be defined to be on rhs of Expression Ast", lineno);
+
+	CHECK_INVARIANT((lhs != NULL), "lhs of Expression cannot be null");
+	Eval_Result & lhs_result = lhs->evaluate(eval_env, file_buffer);
+
+	CHECK_INPUT_AND_ABORT(lhs_result.is_variable_defined(), "Variable should be defined to be on lhs of Expression Ast", lineno);
+
+	// Print the result
+
+	Eval_Result & result = *new Eval_Result_Value_Int();
+    int compare_result = this->compare(lhs_result.get_int_value(), rhs_result.get_int_value());
+    //file_buffer << "Compare result is "<< compare_result <<endl;
+    result.set_value(compare_result);
+
+	return result;
+}
+
+Code_For_Ast & Relational_Expr_Ast::compile()
+{
+	/* 
+		An assignment x = y where y is a variable is 
+		compiled as a combination of load and store statements:
+		(load) R <- y 
+		(store) x <- R
+		If y is a constant, the statement is compiled as:
+		(imm_Load) R <- y 
+		(store) x <- R
+		where imm_Load denotes the load immediate operation.
+	*/
+
+	CHECK_INVARIANT((lhs != NULL), "Lhs cannot be null");
+	CHECK_INVARIANT((rhs != NULL), "Rhs cannot be null");
+
+	Code_For_Ast & load_stmt = rhs->compile();
+
+	Register_Descriptor * load_register = load_stmt.get_reg();
+
+	Code_For_Ast store_stmt = lhs->create_store_stmt(load_register);
+
+	// Store the statement in ic_list
+
+	list<Icode_Stmt *> & ic_list = *new list<Icode_Stmt *>;
+
+	if (load_stmt.get_icode_list().empty() == false)
+		ic_list = load_stmt.get_icode_list();
+
+	if (store_stmt.get_icode_list().empty() == false)
+		ic_list.splice(ic_list.end(), store_stmt.get_icode_list());
+
+	Code_For_Ast * assign_stmt;
+	if (ic_list.empty() == false)
+		assign_stmt = new Code_For_Ast(ic_list, load_register);
+
+	return *assign_stmt;
+}
+
+Code_For_Ast & Relational_Expr_Ast::compile_and_optimize_ast(Lra_Outcome & lra)
+{
+	CHECK_INVARIANT((lhs != NULL), "Lhs cannot be null");
+	CHECK_INVARIANT((rhs != NULL), "Rhs cannot be null");
+
+	lra.optimize_lra(mc_2m, lhs, rhs);
+	Code_For_Ast load_stmt = rhs->compile_and_optimize_ast(lra);
+
+	Register_Descriptor * result_register = load_stmt.get_reg();
+
+	Code_For_Ast store_stmt = lhs->create_store_stmt(result_register);
+
+	list<Icode_Stmt *> ic_list;
+
+	if (load_stmt.get_icode_list().empty() == false)
+		ic_list = load_stmt.get_icode_list();
+
+	if (store_stmt.get_icode_list().empty() == false)
+		ic_list.splice(ic_list.end(), store_stmt.get_icode_list());
+
+	Code_For_Ast * assign_stmt;
+	if (ic_list.empty() == false)
+		assign_stmt = new Code_For_Ast(ic_list, result_register);
+
+	return *assign_stmt;
+}
+
 /////////////////////////////////////////////////////////////////
 
 Name_Ast::Name_Ast(string & name, Symbol_Table_Entry & var_entry, int line)
@@ -495,6 +640,7 @@ void Return_Ast::print(ostream & file_buffer)
 
 Eval_Result & Return_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
 {
+	print(file_buffer);
 	Eval_Result & result = *new Eval_Result_Value_Int();
 	return result;
 }
@@ -510,5 +656,109 @@ Code_For_Ast & Return_Ast::compile_and_optimize_ast(Lra_Outcome & lra)
 	Code_For_Ast & ret_code = *new Code_For_Ast();
 	return ret_code;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+Goto_Ast::Goto_Ast(int succ, int line)
+{
+	lineno = line;
+	successor = succ;
+	ast_num_child = unary_arity;
+}
+
+Goto_Ast::~Goto_Ast()
+{}
+
+void Goto_Ast::print(ostream & file_buffer)
+{
+	file_buffer << AST_SPACE << "Goto statement:\n";
+	file_buffer << AST_NODE_SPACE"Successor: "<< successor <<endl;
+}
+
+int Goto_Ast::get_successor(){
+    return successor;
+}
+
+
+Eval_Result & Goto_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
+{
+	print(file_buffer);
+	Eval_Result & result = *new Eval_Result_Value_Int();
+    result.set_result_enum(go_to_result); //set the type to go_to_result enum
+    result.set_value(successor);
+	file_buffer << AST_SPACE << "GOTO (BB "<< successor <<")"<<"\n";
+	return result;
+}
+
+Code_For_Ast & Goto_Ast::compile()
+{
+	Code_For_Ast & ret_code = *new Code_For_Ast();
+	return ret_code;
+}
+
+Code_For_Ast & Goto_Ast::compile_and_optimize_ast(Lra_Outcome & lra)
+{
+	Code_For_Ast & ret_code = *new Code_For_Ast();
+	return ret_code;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+If_Ast::If_Ast(Ast * temp_condition, Ast * temp_goto_true, Ast* temp_goto_false, int line)
+{
+	lineno = line;
+	condition = temp_condition;
+	goto_true = temp_goto_true;
+	goto_false= temp_goto_false;
+	ast_num_child = binary_arity; //TODO
+}
+
+If_Ast::~If_Ast()
+{}
+
+void If_Ast::print(ostream & file_buffer)
+{
+	file_buffer << AST_SPACE << "If_Else statement:";
+    condition->print(file_buffer);
+    file_buffer <<endl; //this is required because rel_expr->print() doesn't end in newline
+    file_buffer << AST_NODE_SPACE << "True Successor: "<< ((Goto_Ast*)goto_true)->get_successor() <<endl;
+    file_buffer << AST_NODE_SPACE << "False Successor: "<< ((Goto_Ast*)goto_false)->get_successor() <<endl;
+}
+
+
+Eval_Result & If_Ast::evaluate(Local_Environment & eval_env, ostream & file_buffer)
+{
+	Eval_Result & result = *new Eval_Result_Value_Int();
+    int successor;
+
+    print(file_buffer);
+
+	Eval_Result & condition_result = condition->evaluate(eval_env, file_buffer);
+    int cond_result_value = condition_result.get_int_value();
+    if(cond_result_value == 1){ //true statment
+        successor =((Goto_Ast*)goto_true)->get_successor();
+        file_buffer << AST_SPACE << "Condition True : Goto (BB "<< successor << ")"<<endl;
+    }
+    else{ //false statment
+        successor =((Goto_Ast*)goto_false)->get_successor();
+        file_buffer << AST_SPACE << "Condition False : Goto (BB "<< successor << ")"<<endl;
+    }
+    
+    result.set_result_enum(go_to_result); //set the type to go_to_result enum
+    result.set_value(successor);
+}
+
+Code_For_Ast & If_Ast::compile()
+{
+	Code_For_Ast & ret_code = *new Code_For_Ast();
+	return ret_code;
+}
+
+Code_For_Ast & If_Ast::compile_and_optimize_ast(Lra_Outcome & lra)
+{
+	Code_For_Ast & ret_code = *new Code_For_Ast();
+	return ret_code;
+}
+
 
 template class Number_Ast<int>;
