@@ -22,12 +22,12 @@ print("Done generating cfg files\n");
 
 for f in cfgFiles:
     print("Testing file  " + f ); 
-    command = "./cfglp64 -icode " + f
+    command = "./r_cfglp64 -icode " + f
     os.system(command)
     icfile = f+".ic";
     os.system("cp " + icfile + "  t2.txt");
 
-    command = "./cfglp -icode " + f
+    command = "./cfglp64 -icode " + f
     os.system(command)
     os.system("cp " + icfile + "  t1.txt");
 
@@ -35,21 +35,21 @@ for f in cfgFiles:
     continue
     
 
-    command = "./cfglp64 -tokens -d " + f + " > expected " 
+    command = "./r_cfglp64 -tokens -d " + f + " > expected " 
     os.system(command) 
-    command = "./cfglp -tokens -d " + f + " > generated " 
+    command = "./cfglp64 -tokens -d " + f + " > generated " 
     os.system(command)
     os.system("diff -B expected generated")
 
-    command = "./cfglp64 -ast -d " + f + " > expected_ast " 
+    command = "./r_cfglp64 -ast -d " + f + " > expected_ast " 
     os.system(command) 
-    command = "./cfglp -ast -d " + f + " > generated_ast " 
+    command = "./cfglp64 -ast -d " + f + " > generated_ast " 
     os.system(command)
     os.system("diff -B expected_ast generated_ast")
 
-    command = "./cfglp64 -eval -d " + f + " > expected_eval " 
+    command = "./r_cfglp64 -eval -d " + f + " > expected_eval " 
     os.system(command) 
-    command = "./cfglp -eval -d " + f + " > generated_eval " 
+    command = "./cfglp64 -eval -d " + f + " > generated_eval " 
     os.system(command)
     os.system("diff -B expected_eval generated_eval")
 
@@ -66,21 +66,21 @@ for f in files:
 
 for f in error_files:
     print("Testing file  " + f ); 
-    command = "./cfglp64 -tokens  " + f + " 2> expected " 
+    command = "./r_cfglp64 -tokens  " + f + " 2> expected " 
     os.system(command) 
-    command = "./cfglp -tokens " + f + " 2> generated " 
+    command = "./cfglp64 -tokens " + f + " 2> generated " 
     os.system(command)
     os.system("diff -B expected generated")
 
-    command = "./cfglp64 -ast  " + f + " 2> expected_ast " 
+    command = "./r_cfglp64 -ast  " + f + " 2> expected_ast " 
     os.system(command) 
-    command = "./cfglp -ast " + f + " 2> generated_ast " 
+    command = "./cfglp64 -ast " + f + " 2> generated_ast " 
     os.system(command)
     os.system("diff -B expected_ast generated_ast")
 
-    command = "./cfglp64 -eval  " + f + " 2> expected_eval " 
+    command = "./r_cfglp64 -eval  " + f + " 2> expected_eval " 
     os.system(command) 
-    command = "./cfglp -eval " + f + " 2> generated_eval " 
+    command = "./cfglp64 -eval " + f + " 2> generated_eval " 
     os.system(command)
     os.system("diff -B expected_eval generated_eval")
 
