@@ -59,7 +59,7 @@ bool Register_Descriptor::is_symbol_list_empty()         	{ return lra_symbol_li
 
 bool Register_Descriptor::is_free()     
 { 
-	if ((reg_use == gp_data) && (lra_symbol_list.empty())) 
+	if ((reg_use == gp_data) && (lra_symbol_list.empty()) && !(used_for_expr_result))  //updated must not be in use for expression result 
 		return true;
 	else 
 		return false;
@@ -98,6 +98,17 @@ void Register_Descriptor::update_symbol_information(Symbol_Table_Entry & sym_ent
 		lra_symbol_list.push_back(&sym_entry);
 }
 
+bool Register_Descriptor::get_used_for_expr_result(){
+	return used_for_expr_result;
+}
+
+void Register_Descriptor::set_used_for_expr_result(){
+	used_for_expr_result = true;
+}
+
+void Register_Descriptor::reset_used_for_expr_result(){
+	used_for_expr_result = false;
+}
 //////////////////////////////// Lra_Outcome //////////////////////////////////////////
 
 Lra_Outcome::Lra_Outcome(Register_Descriptor * rdp, bool nr, bool sr, bool dr, bool mv, bool ld)
@@ -278,6 +289,13 @@ void Machine_Description::initialize_instruction_table()
 	spim_instruction_table[store] = new Instruction_Descriptor(store, "store", "sw", "", i_r_op_o1, a_op_o1_r);
 	spim_instruction_table[load] = new Instruction_Descriptor(load, "load", "lw", "", i_r_op_o1, a_op_r_o1);
 	spim_instruction_table[imm_load] = new Instruction_Descriptor(imm_load, "iLoad", "li", "", i_r_op_o1, a_op_r_o1);
+
+	spim_instruction_table[slt] = new Instruction_Descriptor(slt, "slt", "slt", "", i_r_o1_op_o2, a_op_r_o1_o2);
+	spim_instruction_table[sle] = new Instruction_Descriptor(sle, "sle", "sle", "", i_r_o1_op_o2, a_op_r_o1_o2);
+	spim_instruction_table[sgt] = new Instruction_Descriptor(sgt, "sgt", "sgt", "", i_r_o1_op_o2, a_op_r_o1_o2);
+	spim_instruction_table[sge] = new Instruction_Descriptor(sge, "sge", "sge", "", i_r_o1_op_o2, a_op_r_o1_o2);
+	spim_instruction_table[seq] = new Instruction_Descriptor(seq, "seq", "seq", "", i_r_o1_op_o2, a_op_r_o1_o2);
+	spim_instruction_table[sne] = new Instruction_Descriptor(sne, "sne", "sne", "", i_r_o1_op_o2, a_op_r_o1_o2);
 }
 
 void Machine_Description::validate_init_local_register_mapping()
@@ -320,8 +338,10 @@ Register_Descriptor * Machine_Description::get_new_register()
 	{
 		reg_desc = i->second;
 
-		if (reg_desc->is_free())
+		if (reg_desc->is_free()){
+			reg_desc->set_used_for_expr_result(); //thus this register is now busy unless freed using reset()
 			return reg_desc;
+		}
 	}
 
 	CHECK_INVARIANT(CONTROL_SHOULD_NOT_REACH, 

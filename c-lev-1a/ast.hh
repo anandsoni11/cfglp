@@ -41,6 +41,7 @@ using namespace std;
 
 
 static map<int, string> rel_operators_map = {{0, "LT"}, {1, "GT"}, {2, "GE"}, {3, "LE"}, {4, "NE"}, {5, "EQ"}};
+static map<int, Tgt_Op> rel_tgtop_map = {{0, slt}, {1, sgt}, {2, sge}, {3, sle}, {4, sne}, {5, seq}};
 
 class Ast;
 

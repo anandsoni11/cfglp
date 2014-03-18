@@ -200,6 +200,9 @@ Code_For_Ast & Assignment_Ast::compile()
 	if (ic_list.empty() == false)
 		assign_stmt = new Code_For_Ast(ic_list, load_register);
 
+	//free the register holding rhs expression
+	load_register->reset_used_for_expr_result();
+	
 	return *assign_stmt;
 }
 
@@ -312,42 +315,47 @@ Eval_Result & Relational_Expr_Ast::evaluate(Local_Environment & eval_env, ostrea
 Code_For_Ast & Relational_Expr_Ast::compile()
 {
 	/* 
-		An assignment x = y where y is a variable is 
-		compiled as a combination of load and store statements:
-		(load) R <- y 
-		(store) x <- R
-		If y is a constant, the statement is compiled as:
-		(imm_Load) R <- y 
-		(store) x <- R
-		where imm_Load denotes the load immediate operation.
 	*/
 
-    /*
 	CHECK_INVARIANT((lhs != NULL), "Lhs cannot be null");
 	CHECK_INVARIANT((rhs != NULL), "Rhs cannot be null");
 
-	Code_For_Ast & load_stmt = rhs->compile();
+	Code_For_Ast & load_lhs_stmt = lhs->compile();
+	Code_For_Ast & load_rhs_stmt = rhs->compile();
 
-	Register_Descriptor * load_register = load_stmt.get_reg();
+	Register_Descriptor * lhs_register = load_lhs_stmt.get_reg();
+	Register_Descriptor * rhs_register = load_rhs_stmt.get_reg();
 
-	Code_For_Ast store_stmt = lhs->create_store_stmt(load_register);
+	Ics_Opd * opd1 = new Register_Addr_Opd(lhs_register);
+	Ics_Opd * opd2 = new Register_Addr_Opd(rhs_register);
+
+	Register_Descriptor * result_register = machine_dscr_object.get_new_register(); //to hold the result of comparistion
+	CHECK_INVARIANT((result_register != NULL), "Result register cannot be null");
+	Ics_Opd * result_opd = new Register_Addr_Opd(result_register);
+
+	Icode_Stmt * compare_stmt = new Compute_IC_Stmt(rel_tgtop_map[rel_op], opd1, opd2, result_opd);
+
 
 	// Store the statement in ic_list
 
 	list<Icode_Stmt *> & ic_list = *new list<Icode_Stmt *>;
 
-	if (load_stmt.get_icode_list().empty() == false)
-		ic_list = load_stmt.get_icode_list();
+	if (load_lhs_stmt.get_icode_list().empty() == false)
+		ic_list = load_lhs_stmt.get_icode_list();
+	if (load_rhs_stmt.get_icode_list().empty() == false)
+		ic_list.splice(ic_list.end(), load_rhs_stmt.get_icode_list());
+    //now list contains lhs & rhs stmts, now insert the compare_stmt created above
+    ic_list.push_back(compare_stmt);
 
-	if (store_stmt.get_icode_list().empty() == false)
-		ic_list.splice(ic_list.end(), store_stmt.get_icode_list());
-
-	Code_For_Ast * assign_stmt;
+	Code_For_Ast * rel_stmt;
 	if (ic_list.empty() == false)
-		assign_stmt = new Code_For_Ast(ic_list, load_register);
+		rel_stmt = new Code_For_Ast(ic_list, result_register);
 
-	return *assign_stmt;
-    */
+	//free lhs & rhs register descriptors
+	lhs_register->reset_used_for_expr_result();
+	rhs_register->reset_used_for_expr_result();
+
+	return *rel_stmt;
 }
 
 Code_For_Ast & Relational_Expr_Ast::compile_and_optimize_ast(Lra_Outcome & lra)
@@ -514,7 +522,7 @@ Code_For_Ast & Name_Ast::create_store_stmt(Register_Descriptor * store_register)
 	Icode_Stmt * store_stmt = new Move_IC_Stmt(store, register_opd, opd);
 
 	if (command_options.is_do_lra_selected() == false)
-		variable_symbol_entry->free_register(store_register);
+		variable_symbol_entry->free_register(store_register); //i.e if lra is false, then simply free register holding the value
 
 	list<Icode_Stmt *> & ic_list = *new list<Icode_Stmt *>;
 	ic_list.push_back(store_stmt);
