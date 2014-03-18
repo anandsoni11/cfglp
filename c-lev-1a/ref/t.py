@@ -32,14 +32,24 @@ print(cfgFiles)
 
 for f in cfgFiles:
     print("Testing file  " + f ); 
-    command = "./r_cfglp64 -tokens -eval " + f
-    os.system(command)
-    icfile = f+".toks";
-    os.system("cp " + icfile + "  t2.txt");
+    astfile = f+".toks";
+    tokfile = f+".ast";
+    evalfile = f + ".eval";
 
-    command = "./cfglp64 -tokens -eval " + f
+    command = "./r_cfglp64 -tokens -eval -ast " + f
     os.system(command)
-    os.system("cp " + icfile + "  t1.txt");
 
-    os.system("diff -bB t1.txt t2.txt");
-    continue
+    os.system("cp " + tokfile + "  tok2.txt");
+    os.system("cp " + astfile + "  ast2.txt");
+    os.system("cp " + evalfile + "  eval2.txt");
+
+    command = "./r_cfglp64 -tokens -eval -ast " + f
+    os.system(command)
+
+    os.system("cp " + tokfile + "  tok1.txt");
+    os.system("cp " + astfile + "  ast1.txt");
+    os.system("cp " + evalfile + "  eval1.txt");
+
+    os.system("diff -bB tok1.txt tok2.txt");
+    os.system("diff -bB ast1.txt ast2.txt");
+    os.system("diff -bB eval1.txt eval2.txt");
