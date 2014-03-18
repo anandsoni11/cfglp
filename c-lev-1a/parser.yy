@@ -483,6 +483,14 @@ atomic_expression: /* TODO string */
         $$ = $1;
     }
     }
+|
+    '(' expression ')'
+    {
+    if (NOT_ONLY_PARSE)
+	{
+        $$ = $2;
+    }
+    }
 ;
 
 
