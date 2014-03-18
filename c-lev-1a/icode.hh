@@ -50,6 +50,7 @@ typedef enum
 	a_op_r_r_o1,	/* r <- r op o1 */
 	a_op_r_o1_o2,	/* r <- o1 op o2 */ 
 	a_op_o1_o2_r,	/* r <- o1 op o2 */
+	a_op_o1_o2_o3,	/* 3 operands e.g `bne $t1, $zero, label3` */ 
 	a_nsy		/* not specified yet */
 } Assembly_Format;
 
@@ -63,6 +64,7 @@ typedef enum
 	i_r_op_o1,	/* r <- o1 */
 	i_r_r_op_o1,	/* r <- r op o1 */
 	i_r_o1_op_o2,	/* r <- o1 op o2 */ 
+	i_op_o1_o2_o3,	/* 3 operands e.g `bne t0 , zero: goto label3` */ 
 	i_nsy		/* not specified yet */
 } Icode_Format;
 
@@ -87,6 +89,11 @@ typedef enum
 	sge,
 	seq,
 	sne,
+
+    //control flow
+    bne,
+    beq,
+    tgoto, //target goto
 
 	nop
 } Tgt_Op;
@@ -267,6 +274,31 @@ public:
 	void print_assembly(ostream & file_buffer);
 };
 
+class Control_Flow_IC_Stmt: public Icode_Stmt
+{ 
+	Ics_Opd * opd1;   
+	Ics_Opd * opd2;   
+	Ics_Opd * opd3; 
+
+public:
+	Control_Flow_IC_Stmt(Tgt_Op inst_op, Ics_Opd * o1, Ics_Opd * o2, Ics_Opd * o3); 
+	~Control_Flow_IC_Stmt() {} 
+	Control_Flow_IC_Stmt & operator=(const Control_Flow_IC_Stmt & rhs);
+
+	Instruction_Descriptor & get_inst_op_of_ics();
+
+	Ics_Opd * get_opd1();
+	void set_opd1(Ics_Opd * io);
+
+	Ics_Opd * get_opd2();
+	void set_opd2(Ics_Opd * io);
+
+	Ics_Opd * get_opd3();
+	void set_opd3(Ics_Opd * io);
+
+	void print_icode(ostream & file_buffer);
+	void print_assembly(ostream & file_buffer);
+};
 //////////////////////// Intermediate code for Ast statements ////////////////////////
 
 class Code_For_Ast

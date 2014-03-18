@@ -246,6 +246,7 @@ public:
 	void clear_local_register_mappings();
 
 	Register_Descriptor * get_new_register();
+  Register_Descriptor * get_register(Spim_Register);
 };
 
 extern Machine_Description machine_dscr_object;

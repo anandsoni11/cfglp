@@ -707,8 +707,17 @@ Eval_Result & Goto_Ast::evaluate(Local_Environment & eval_env, ostream & file_bu
 
 Code_For_Ast & Goto_Ast::compile()
 {
-	Code_For_Ast & ret_code = *new Code_For_Ast();
-	return ret_code;
+	Ics_Opd * opd1 = new Const_Opd<int>(successor);
+	Icode_Stmt * goto_statement = new Control_Flow_IC_Stmt(tgoto, opd1, NULL, NULL);
+
+	// Store the statement in ic_list
+	list<Icode_Stmt *> & ic_list = *new list<Icode_Stmt *>;
+
+    ic_list.push_back(goto_statement);
+
+	Code_For_Ast* goto_cfa_stmt = new Code_For_Ast(ic_list, NULL);
+
+	return *goto_cfa_stmt;
 }
 
 Code_For_Ast & Goto_Ast::compile_and_optimize_ast(Lra_Outcome & lra)
@@ -763,16 +772,49 @@ Eval_Result & If_Ast::evaluate(Local_Environment & eval_env, ostream & file_buff
     result.set_value(successor);
 }
 
-Code_For_Ast & If_Ast::compile()
+Code_For_Ast & If_Ast::compile_and_optimize_ast(Lra_Outcome & lra)
 {
 	Code_For_Ast & ret_code = *new Code_For_Ast();
 	return ret_code;
 }
 
-Code_For_Ast & If_Ast::compile_and_optimize_ast(Lra_Outcome & lra)
+Code_For_Ast & If_Ast::compile()
 {
-	Code_For_Ast & ret_code = *new Code_For_Ast();
-	return ret_code;
+	CHECK_INVARIANT((condition != NULL), "Condition cannot be null");
+	CHECK_INVARIANT((goto_true != NULL), "goto_true cannot be null");
+	CHECK_INVARIANT((goto_false != NULL), "goto_false cannot be null");
+
+	Code_For_Ast & load_cond_stmt = condition->compile();
+    // 1) load statements
+
+    // 2) bne statement
+	Register_Descriptor * cond_register = load_cond_stmt.get_reg();
+	Register_Descriptor * zero_register = machine_dscr_object.get_register(zero);
+
+    //opd1 : $t1, opd2 : $zero, opd3 : label(int)
+	Ics_Opd * opd1 = new Register_Addr_Opd(cond_register);
+	Ics_Opd * opd2 = new Register_Addr_Opd(zero_register);
+	Ics_Opd * opd3 = new Const_Opd<int>(((Goto_Ast*)goto_true)->get_successor());
+	Icode_Stmt * bne_statement = new Control_Flow_IC_Stmt(bne, opd1, opd2, opd3);
+
+    // 3) goto statement
+	opd1 = new Const_Opd<int>(((Goto_Ast*)goto_false)->get_successor());
+	Icode_Stmt * goto_statement = new Control_Flow_IC_Stmt(tgoto, opd1, NULL, NULL);
+
+	// Store the statement in ic_list
+	list<Icode_Stmt *> & ic_list = *new list<Icode_Stmt *>;
+	if (load_cond_stmt.get_icode_list().empty() == false)   //---1
+		ic_list = load_cond_stmt.get_icode_list();
+
+    ic_list.push_back(bne_statement);   //---2
+    ic_list.push_back(goto_statement);   //---3
+
+	Code_For_Ast* if_cfa_stmt = new Code_For_Ast(ic_list, NULL);
+
+    //free the register holding condition value
+    cond_register->reset_used_for_expr_result();
+
+	return *if_cfa_stmt;
 }
 
 

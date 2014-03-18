@@ -296,6 +296,12 @@ void Machine_Description::initialize_instruction_table()
 	spim_instruction_table[sge] = new Instruction_Descriptor(sge, "sge", "sge", "", i_r_o1_op_o2, a_op_r_o1_o2);
 	spim_instruction_table[seq] = new Instruction_Descriptor(seq, "seq", "seq", "", i_r_o1_op_o2, a_op_r_o1_o2);
 	spim_instruction_table[sne] = new Instruction_Descriptor(sne, "sne", "sne", "", i_r_o1_op_o2, a_op_r_o1_o2);
+
+	spim_instruction_table[beq] = new Instruction_Descriptor(beq, "beq", "beq", "", i_op_o1_o2_o3, a_op_o1_o2_o3);
+	spim_instruction_table[bne] = new Instruction_Descriptor(bne, "bne", "bne", "", i_op_o1_o2_o3, a_op_o1_o2_o3);
+	spim_instruction_table[tgoto] = new Instruction_Descriptor(tgoto, "goto", "j", "", i_op_o1, a_op_o1);
+
+
 }
 
 void Machine_Description::validate_init_local_register_mapping()
@@ -327,6 +333,10 @@ void Machine_Description::clear_local_register_mappings()
 	consider storing all unstored values at the end of
 	a basic block.
 	*/
+}
+
+Register_Descriptor * Machine_Description::get_register(Spim_Register reg){
+	return spim_register_table[reg];
 }
 
 Register_Descriptor * Machine_Description::get_new_register()
