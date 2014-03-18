@@ -492,6 +492,7 @@ rel_expression:
     if (NOT_ONLY_PARSE)
 	{
         $$ = new Relational_Expr_Ast($1, $3, $2, get_line_number());
+        $$->check_ast();
     }
     }
 |
@@ -500,6 +501,7 @@ rel_expression:
     if (NOT_ONLY_PARSE)
 	{
         $$ = new Relational_Expr_Ast($1, $3, $2, get_line_number());
+        $$->check_ast();
     }
     }
 |
@@ -508,6 +510,7 @@ rel_expression:
     if (NOT_ONLY_PARSE)
 	{
         $$ = new Relational_Expr_Ast($1, $3, $2, get_line_number());
+        $$->check_ast();
     }
     }
 |
@@ -516,6 +519,7 @@ rel_expression:
     if (NOT_ONLY_PARSE)
 	{
         $$ = new Relational_Expr_Ast($1, $3, $2, get_line_number());
+        $$->check_ast();
     }
     }
 |
@@ -524,6 +528,7 @@ rel_expression:
    	if (NOT_ONLY_PARSE)
 	{
         $$ = new Relational_Expr_Ast($1, $3, $2, get_line_number());
+        $$->check_ast();
     }
     }
 |
@@ -532,6 +537,7 @@ rel_expression:
     if (NOT_ONLY_PARSE)
 	{
         $$ = new Relational_Expr_Ast($1, $3, $2, get_line_number());
+        $$->check_ast();
     }
     }
 |

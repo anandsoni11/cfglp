@@ -63,7 +63,7 @@ public:
 	Ast();
 	~Ast();
 
-	virtual Data_Type get_data_type();
+	Data_Type get_data_type();
 	virtual bool check_ast();
 	virtual Symbol_Table_Entry & get_symbol_entry();
 

@@ -12,11 +12,20 @@ for f in files:
 
 
 
-cfgFiles=[]
 for f in correct_files:
     command = "make -f Makefile.cfg FILE=" + f+ " >/dev/null";
     os.system(command);
-    cfgFiles.append(path+"/"+f+"s306.cfg"); 
+
+#cfg generated from c, now collect all cfg
+files=[]
+for f in os.listdir(path):
+    files.append(f) 
+
+cfgFiles=[]
+for f in files:
+    fileName,fileExt = os.path.splitext( path + f)
+    if( fileExt == '.cfg'):
+        cfgFiles.append(f)
 
 print("Done generating cfg files\n");
 

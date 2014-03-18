@@ -69,7 +69,7 @@ void Basic_Block::print_bb(ostream & file_buffer)
 
 Eval_Result & Basic_Block::evaluate(Local_Environment & eval_env, ostream & file_buffer)
 {
-	Eval_Result * result = NULL;
+	Eval_Result * result = new Eval_Result_Value_Int(); //dummy just in case basic block is empty
 
 	file_buffer << "\n" << BB_SPACE << "Basic Block: " << id_number << "\n";
 

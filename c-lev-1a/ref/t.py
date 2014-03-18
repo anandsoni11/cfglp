@@ -25,17 +25,19 @@ cfgFiles=[]
 for f in files:
     fileName,fileExt = os.path.splitext( path + f)
     if( fileExt == '.cfg'):
-        cfgFiles.append(f)
+        cfgFiles.append(path+"/"+f); 
 print("Done generating cfg files\n");
+
+print(cfgFiles)
 
 for f in cfgFiles:
     print("Testing file  " + f ); 
-    command = "./r_cfglp64 -icode " + f
+    command = "./r_cfglp64 -tokens -eval " + f
     os.system(command)
-    icfile = f+".ic";
+    icfile = f+".toks";
     os.system("cp " + icfile + "  t2.txt");
 
-    command = "./cfglp64 -icode " + f
+    command = "./cfglp64 -tokens -eval " + f
     os.system(command)
     os.system("cp " + icfile + "  t1.txt");
 

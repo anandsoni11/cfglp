@@ -54,9 +54,12 @@ bool Ast::check_ast()
 
 Data_Type Ast::get_data_type()
 {
+    return node_data_type;
+    /*
 	stringstream msg;
 	msg << "No get_data_type() function for " << typeid(*this).name();
 	CHECK_INVARIANT(CONTROL_SHOULD_NOT_REACH, msg.str());
+    */
 }
 
 Symbol_Table_Entry & Ast::get_symbol_entry()
@@ -319,6 +322,7 @@ Code_For_Ast & Relational_Expr_Ast::compile()
 		where imm_Load denotes the load immediate operation.
 	*/
 
+    /*
 	CHECK_INVARIANT((lhs != NULL), "Lhs cannot be null");
 	CHECK_INVARIANT((rhs != NULL), "Rhs cannot be null");
 
@@ -343,10 +347,12 @@ Code_For_Ast & Relational_Expr_Ast::compile()
 		assign_stmt = new Code_For_Ast(ic_list, load_register);
 
 	return *assign_stmt;
+    */
 }
 
 Code_For_Ast & Relational_Expr_Ast::compile_and_optimize_ast(Lra_Outcome & lra)
 {
+    /*
 	CHECK_INVARIANT((lhs != NULL), "Lhs cannot be null");
 	CHECK_INVARIANT((rhs != NULL), "Rhs cannot be null");
 
@@ -370,6 +376,7 @@ Code_For_Ast & Relational_Expr_Ast::compile_and_optimize_ast(Lra_Outcome & lra)
 		assign_stmt = new Code_For_Ast(ic_list, result_register);
 
 	return *assign_stmt;
+    */
 }
 
 /////////////////////////////////////////////////////////////////
