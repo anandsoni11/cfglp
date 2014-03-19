@@ -1,32 +1,28 @@
 if [ "$1" = "c" ]
 then
     make -f Makefile.cfg clean
-    make -f Makefile.cfglp clean
-elif [ "$1" = "1" ]
-then
-    make -f Makefile.cfg FILE=test.c
+    rm -f test_files/*.toks
+    rm -f test_files/*.ast
+    rm -f test_files/*.eval
+    rm -f test_files/*.sym
+    rm -f test_files/*.prog
+    rm -f test_files/*.ic
+    rm -f test_files/*.spim
+    #cleaning cfg files corresponding to .c only. Remaining cfg untouched
+    suffix='s306.cfg'
+    for f in test_files/*.c
+    do
+        f=$f$suffix
+        echo $f
+        rm -f $f
+    done
+
 elif [ "$1" = "2" ]
 then
     make -f Makefile.cfglp
-    ./cfglp test_files/test.cs306.cfg -tokens
-elif [ "$1" = "r" ]
-then
-    ./cfglp test_files/test.cs306.cfg -tokens
 elif [ "$1" = "3" ]
 then
     make -f Makefile.cfg FILE=$2
-elif [ "$1" = "4" ]
-then
-    ./cfglp test_files/$2s306.cfg -tokens -d > t1.txt
-elif [ "$1" = "5" ]
-then
-    ./cfglp64 test_files/$2s306.cfg -tokens -d > t2.txt
-elif [ "$1" = "6" ]
-then
-    ./cfglp test_files/$2 -tokens -d > t1.txt
-elif [ "$1" = "7" ]
-then
-    ./cfglp64 test_files/$2 -tokens -d > t2.txt
 else
     echo "wrong code"
 fi
