@@ -1,0 +1,31 @@
+Submitted By:
+
+Ashish Sonone (110050022) and Anand Soni (110050037)
+
+We made changes in the following files:
+	scanner.ll, parser.yy, parser.ih , ast.hh, ast.cc, icode.hh, icode.cc, reg-alloc.hh, reg-alloc.cc
+
+
+scanner.ll: 
+	Modified token names
+
+parser.yy : 
+	Written grammar rules for relational expression, If-else, and goto statements and accept "( expression )".
+	Added precedence rules and error-handling action.
+
+ast.cc & ast.hh:
+	3 new classes : Relational_Expression_Ast, If_Else_Ast, Goto_Ast.
+	Added compile(), print(), and evaluate methods to each.
+
+parser.ih:
+	added check_goto_validity() function to check if each goto statement in the cfg points to a valid Basic-Block No
+
+icode.hh & icode.cc:
+	Added new enum values in Icode_Format and Tgt_Op
+	Added new classes Compute_IC_Stmt(handle relational expressions) & Control_Flow_IC_Stmt(handle if-else and goto)
+
+reg-alloc.hh & reg-alloc.cc:
+	Modified Register_Descriptor::isfree() to take into account use for expression result
+	Added entries corr to new instructions in spim_instruction_table(slt,sgt,sle,sge,sne,seq, goto, bne)
+
+	
