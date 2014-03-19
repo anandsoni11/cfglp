@@ -1,13 +1,21 @@
 if [ "$1" = "c" ]
 then
     make -f Makefile.cfg clean
-    rm test_files/*.toks
-    rm test_files/*.ast
-    rm test_files/*.eval
-    rm test_files/*.sym
-    rm test_files/*.prog
-    rm test_files/*.ic
-    rm test_files/*.spim
+    rm -f test_files/*.toks
+    rm -f test_files/*.ast
+    rm -f test_files/*.eval
+    rm -f test_files/*.sym
+    rm -f test_files/*.prog
+    rm -f test_files/*.ic
+    rm -f test_files/*.spim
+    #cleaning cfg files corresponding to .c only. Remaining cfg untouched
+    suffix='s306.cfg'
+    for f in test_files/*.c
+    do
+        f=$f$suffix
+        echo $f
+        rm -f $f
+    done
 
 elif [ "$1" = "2" ]
 then
