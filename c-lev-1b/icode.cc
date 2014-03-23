@@ -356,7 +356,7 @@ void Compute_IC_Stmt::print_assembly(ostream & file_buffer)
 	switch (assem_format)
 	{
 	case a_op_r_o1_o2: 
-			file_buffer << "\t" << op_name << ", ";
+			file_buffer << "\t" << op_name<<" ";
 			result->print_asm_opd(file_buffer);
 			file_buffer << ", ";
 			opd1->print_asm_opd(file_buffer);
@@ -377,7 +377,7 @@ Control_Flow_IC_Stmt::Control_Flow_IC_Stmt(Tgt_Op inst_op, Ics_Opd * o1, Ics_Opd
 {
 	CHECK_INVARIANT((machine_dscr_object.spim_instruction_table[inst_op] != NULL),
 			"Instruction description in spim table cannot be null");
-
+	
 	op_desc = *(machine_dscr_object.spim_instruction_table[inst_op]);
 	opd1 = o1;   
 	opd2 = o2;   
@@ -453,9 +453,9 @@ void Control_Flow_IC_Stmt::print_assembly(ostream & file_buffer)
 	switch (assem_format)
 	{
 	case a_op_o1_o2_o3: /* 3 operands e.g `bne $t0 , $zero , label3` */
-			file_buffer << " " << op_name << " ";
+			file_buffer << "\t" << op_name << " ";
 			opd1->print_asm_opd(file_buffer);
-			file_buffer << " , ";
+			file_buffer << ", ";
 			opd2->print_asm_opd(file_buffer);
 			file_buffer << ", label";
 			opd3->print_asm_opd(file_buffer);
@@ -464,7 +464,7 @@ void Control_Flow_IC_Stmt::print_assembly(ostream & file_buffer)
 			break; 
 
 	case a_op_o1: /* 1 operands e.g `j label3` */
-			file_buffer << " " << op_name << " ";
+			file_buffer << "\t" << op_name << " ";
 			file_buffer << "label";
 			opd1->print_asm_opd(file_buffer);
 			file_buffer << "\n";
