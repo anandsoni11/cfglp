@@ -60,6 +60,7 @@ int Basic_Block::get_bb_number()
 }
 void Basic_Block::print_bb(ostream & file_buffer)
 {
+	file_buffer << "\n";
 	file_buffer << BB_SPACE << "Basic_Block " << id_number << "\n";
 
 	list<Ast *>::iterator i;

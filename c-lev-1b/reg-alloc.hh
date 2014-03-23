@@ -200,7 +200,8 @@ class Register_Descriptor
 typedef enum 
 { 
 	mc_2m = 1, 
-	mc_2r, 
+	c_2r, 
+	m_2r,
 	r2m, 
 	c2m,
 	r2r
