@@ -8,6 +8,14 @@ then
     rm -f test_files/*.prog
     rm -f test_files/*.ic
     rm -f test_files/*.spim
+    
+    #clean temp txt files
+    rm -f icode*.txt
+    rm -f compile*.txt
+    rm -f symtab*.txt
+    rm -f program*.txt
+    rm -f t1.txt
+    rm -f t2.txt
     #cleaning cfg files corresponding to .c only. Remaining cfg untouched
     suffix='s306.cfg'
     for f in test_files/*.c
