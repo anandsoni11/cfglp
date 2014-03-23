@@ -200,7 +200,7 @@ void Lra_Outcome::optimize_lra(Lra_Scenario lcase, Ast * destination_memory, Ast
 
 		break;
 
-	case mc_2r:
+	case m_2r:
 		CHECK_INVARIANT(source_memory, "Sourse ast pointer cannot be NULL for m2r scenario in lra");
 
 		source_symbol_entry = &(source_memory->get_symbol_entry());
@@ -219,6 +219,14 @@ void Lra_Outcome::optimize_lra(Lra_Scenario lcase, Ast * destination_memory, Ast
 			load_needed = true;
 		}
 
+		break;
+		
+	case c_2r:
+		CHECK_INVARIANT(source_memory, "Sourse ast pointer cannot be NULL for c2r scenario in lra");
+
+		result_register = machine_dscr_object.get_new_register();
+		is_a_new_register = true;
+		load_needed = true;
 		break;
 
 	case r2r:
@@ -243,10 +251,7 @@ void Lra_Outcome::optimize_lra(Lra_Scenario lcase, Ast * destination_memory, Ast
 	CHECK_INVARIANT ((result_register != NULL), "Inconsistent information in lra");
 	register_description = result_register;
 
-	if (destination_register)
-		destination_symbol_entry->free_register(destination_register); 
 
-	destination_symbol_entry->update_register(result_register);
 }
 
 /******************************* Machine Description *****************************************/

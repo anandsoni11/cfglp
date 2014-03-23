@@ -60,6 +60,7 @@ int Basic_Block::get_bb_number()
 }
 void Basic_Block::print_bb(ostream & file_buffer)
 {
+	file_buffer << "\n";
 	file_buffer << BB_SPACE << "Basic_Block " << id_number << "\n";
 
 	list<Ast *>::iterator i;
@@ -124,6 +125,7 @@ void Basic_Block::compile()
 
 void Basic_Block::print_assembly(ostream & file_buffer)
 {
+	file_buffer << "label" << id_number << ":" << endl;
 	list<Icode_Stmt *>::iterator i;
 	for (i = bb_icode_list.begin(); i != bb_icode_list.end(); i++)
 		(*i)->print_assembly(file_buffer);

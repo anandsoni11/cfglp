@@ -237,7 +237,7 @@ void Procedure::print_prologue(ostream & file_buffer)
 	sub $fp, $sp, 4\t\t# Update the frame pointer\n";
 
 	int size = local_symbol_table.get_size();
-    size = -size;
+	size = -size;
 	if (size > 0)
 		prologue << "\n\tsub $sp, $sp, " << (size+4) << "\t\t# Make space for the locals\n";
 	else
@@ -253,6 +253,7 @@ void Procedure::print_epilogue(ostream & file_buffer)
 	stringstream epilogue;
 
 	int size = local_symbol_table.get_size();
+	size =-size;
 
 	if (size > 0)
 		epilogue << "\n# Epilogue Begins\n\tadd $sp, $sp, " << (size+4) << "\n";
