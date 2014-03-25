@@ -109,6 +109,10 @@ void Register_Descriptor::set_used_for_expr_result(){
 void Register_Descriptor::reset_used_for_expr_result(){
 	used_for_expr_result = false;
 }
+
+int Register_Descriptor::get_lra_list_size(){
+    return lra_symbol_list.size();
+}
 //////////////////////////////// Lra_Outcome //////////////////////////////////////////
 
 Lra_Outcome::Lra_Outcome(Register_Descriptor * rdp, bool nr, bool sr, bool dr, bool mv, bool ld)
@@ -185,7 +189,7 @@ void Lra_Outcome::optimize_lra(Lra_Scenario lcase, Ast * destination_memory, Ast
 			is_same_as_source = true;
 			load_needed = false;
 		}
-		else if (destination_register != NULL)
+		else if (destination_register != NULL && destination_register->get_lra_list_size() <2)
 		{
 			result_register = destination_register;
 			is_same_as_destination = true;
