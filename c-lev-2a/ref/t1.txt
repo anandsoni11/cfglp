@@ -1,0 +1,6 @@
+  Procedure: main
+  Intermediate Code Statements
+label2:
+ load:	v0 <- a
+ uminus:	t0 <- v0
+ store:	a <- t0
