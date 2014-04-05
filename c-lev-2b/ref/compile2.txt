@@ -1,0 +1,3 @@
+cfglp error: File: test_files/IfNotComp.ecfg, Line: 21: Arithmetic statement data type not compatible
+cfglp error: File: test_files/IfNotComp.ecfg, Line: 21: Relational statement data type not compatible
+cfglp error: File: test_files/IfNotComp.ecfg, Line: 21: Relational statement data type not compatible
